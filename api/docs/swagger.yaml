@@ -1,0 +1,202 @@
+basePath: /v1
+definitions:
+  models.DefaultResponse:
+    properties:
+      error_code:
+        type: integer
+      error_message:
+        type: string
+    type: object
+  models.UserApiFindResponse:
+    properties:
+      body:
+        $ref: '#/definitions/models.UserFindResponse'
+      error_code:
+        type: integer
+      error_message:
+        type: string
+    type: object
+  models.UserApiResponse:
+    properties:
+      body:
+        $ref: '#/definitions/models.UserResponse'
+      error_code:
+        type: integer
+      error_message:
+        type: string
+    type: object
+  models.UserCreateReq:
+    properties:
+      user_name:
+        type: string
+    type: object
+  models.UserFindResponse:
+    properties:
+      count:
+        type: integer
+      users:
+        items:
+          $ref: '#/definitions/models.UserResponse'
+        type: array
+    type: object
+  models.UserResponse:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: integer
+      updated_at:
+        type: string
+      user_name:
+        type: string
+    type: object
+  models.UserUpdateReq:
+    properties:
+      id:
+        type: integer
+      user_name:
+        type: string
+    type: object
+info:
+  contact: {}
+  description: Here QA can test and frontend or mobile developers can get information
+    of API endpoints.
+  title: User project API Endpoints
+  version: "1.0"
+paths:
+  /user:
+    post:
+      consumes:
+      - application/json
+      description: Here user can be created.
+      parameters:
+      - description: post info
+        in: body
+        name: post
+        required: true
+        schema:
+          $ref: '#/definitions/models.UserCreateReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.UserApiResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/models.DefaultResponse'
+      security:
+      - BearerAuth: []
+      summary: Create user
+      tags:
+      - User
+    put:
+      consumes:
+      - application/json
+      description: Here user can be updated.
+      parameters:
+      - description: post info
+        in: body
+        name: post
+        required: true
+        schema:
+          $ref: '#/definitions/models.UserUpdateReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.UserApiResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/models.DefaultResponse'
+      security:
+      - BearerAuth: []
+      summary: Update user
+      tags:
+      - User
+  /user/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Here user can be deleted.
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.DefaultResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/models.DefaultResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete user
+      tags:
+      - User
+    get:
+      consumes:
+      - application/json
+      description: Here user can be got.
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.UserApiResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/models.DefaultResponse'
+      summary: Get user by key
+      tags:
+      - User
+  /user/list:
+    get:
+      consumes:
+      - application/json
+      description: Here all users can be got.
+      parameters:
+      - in: query
+        name: limit
+        type: integer
+      - in: query
+        name: page
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.UserApiFindResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/models.DefaultResponse'
+      summary: Get users list
+      tags:
+      - User
+securityDefinitions:
+  BearerAuth:
+    type: basic
+swagger: "2.0"

@@ -1,0 +1,52 @@
+version: '3.8'
+services:
+  postgres:
+    container_name: database
+    image: postgres:13
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: useruser
+      POSTGRES_PASSWORD: usersecret
+      POSTGRES_DB: userdatabase
+    ports:
+      - 5433:5432
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      
+  migrate:
+    container_name: migrate
+    image: migrate/migrate:v4.15.2
+    volumes:
+      - ./migrations:/migrations
+    environment:
+      - POSTGRES_HOST=database
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=useruser
+      - POSTGRES_PASSWORD=usersecret
+      - POSTGRES_NAME=userdatabase
+    entrypoint: migrate -path /migrations -database "postgres://useruser:usersecret@database:5432/userdatabase?sslmode=disable"
+    command: up
+    depends_on:
+      - postgres
+    restart: on-failure
+
+
+  app:
+    container_name: gin-postgres-basicauth-monolithic
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - postgres
+    environment:
+      - POSTGRES_HOST=database
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=useruser
+      - POSTGRES_PASSWORD=usersecret
+      - POSTGRES_NAME=userdatabase
+    restart: unless-stopped
+    ports:
+      - 8000:8000
+
+volumes:
+  postgres_data:
