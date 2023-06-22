@@ -111,11 +111,11 @@ func (h *handlerV1) UserRegister(c *gin.Context) {
 	}
 
 	// save to redis
-	userbyte, err := json.Marshal(models.Otp{
-		Email: req.Email,
-		Code:  etc.GenerateCode(6),
-	})
-	err = h.redis.SetWithTTL(req.Email, string(userbyte), int(h.cfg.OtpTimeout))
+	// userbyte, err := json.Marshal(models.Otp{
+	// 	Email: req.Email,
+	// 	Code:  etc.GenerateCode(6),
+	// })
+	// err = h.redis.SetWithTTL(req.Email, string(userbyte), int(h.cfg.OtpTimeout))
 
 	res, err := h.storage.Postgres().UserCreate(context.Background(), req)
 	if HandleDatabaseLevelWithMessage(c, h.log, err, "h.storage.Postgres().UserCreate()") {
