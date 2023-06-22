@@ -10,7 +10,6 @@ import (
 	v1 "github.com/golanguzb70/go-gin-bearer-auth-postgres-monolithic-template/api/handlers/v1"
 	"github.com/golanguzb70/go-gin-bearer-auth-postgres-monolithic-template/api/middleware"
 	t "github.com/golanguzb70/go-gin-bearer-auth-postgres-monolithic-template/api/tokens"
-	token "github.com/golanguzb70/go-gin-bearer-auth-postgres-monolithic-template/api/tokens"
 	"github.com/golanguzb70/go-gin-bearer-auth-postgres-monolithic-template/config"
 	"github.com/golanguzb70/go-gin-bearer-auth-postgres-monolithic-template/pkg/logger"
 	"github.com/golanguzb70/go-gin-bearer-auth-postgres-monolithic-template/storage"
@@ -60,7 +59,7 @@ func New(log *logger.Logger, cfg config.Config, strg storage.StorageI) *gin.Engi
 		},
 	}
 
-	jwtHandler := token.JWTHandler{
+	jwtHandler := t.JWTHandler{
 		SigninKey: cfg.SignInKey,
 		Log:       log,
 	}
