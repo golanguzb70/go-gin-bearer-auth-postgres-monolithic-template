@@ -6,7 +6,7 @@ import (
 	"github.com/golanguzb70/go-gin-bearer-auth-postgres-monolithic-template/config"
 	"github.com/golanguzb70/go-gin-bearer-auth-postgres-monolithic-template/pkg/logger"
 	"github.com/golanguzb70/go-gin-bearer-auth-postgres-monolithic-template/storage"
-	"github.com/golanguzb70/go-gin-bearer-auth-postgres-monolithic-template/storage/redis"
+	"github.com/golanguzb70/go-gin-bearer-auth-postgres-monolithic-template/storage/redisrepo"
 )
 
 type HandlerV1I interface {
@@ -23,7 +23,7 @@ type handlerV1 struct {
 	cfg        config.Config
 	storage    storage.StorageI
 	jwthandler t.JWTHandler
-	redis      redis.InMemoryStorageI
+	redis      redisrepo.InMemoryStorageI
 }
 
 type HandlerV1Config struct {
@@ -31,7 +31,7 @@ type HandlerV1Config struct {
 	Cfg        config.Config
 	Postgres   storage.StorageI
 	JWTHandler t.JWTHandler
-	Redis      redis.InMemoryStorageI
+	Redis      redisrepo.InMemoryStorageI
 }
 
 // New ...

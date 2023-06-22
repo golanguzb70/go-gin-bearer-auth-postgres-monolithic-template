@@ -4,6 +4,7 @@ go 1.20
 
 require (
 	github.com/Masterminds/squirrel v1.5.4
+	github.com/casbin/casbin v1.9.1
 	github.com/casbin/casbin/v2 v2.71.1
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gin-contrib/cors v1.4.0

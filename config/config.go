@@ -21,12 +21,15 @@ type Config struct {
 	PostgresConnectionTimeOut int // seconds
 	PostgresConnectionTry     int
 	BaseUrl                   string
-	AdminUsername             string
-	AdminPassword             string
 	SMTPEmail                 string
 	SMTPEmailPass             string
 	SMTPHost                  string
 	SMTPPort                  string
+	SignInKey                 string
+	AuthConfigPath            string
+	CSVFilePath               string
+	RedisHost                 string
+	RedisPort                 string
 }
 
 // Load loads environment vars and inflates Config
@@ -53,14 +56,18 @@ func Load() Config {
 	c.PostgresConnectionTimeOut = cast.ToInt(getOrReturnDefault("POSTGRES_CONNECTION_TIMEOUT", 5))
 	c.PostgresConnectionTry = cast.ToInt(getOrReturnDefault("POSTGRES_CONNECTION_TRY", 10))
 
-	c.AdminUsername = cast.ToString(getOrReturnDefault("ADMIN_USERNAME", "username"))
-	c.AdminPassword = cast.ToString(getOrReturnDefault("ADMIN_PASSWORD", "userpass"))
-
+	c.SignInKey = cast.ToString(getOrReturnDefault("SIGN_IN_KEY", "ASJDKLFJASasdFASE2SD2dafa"))
+	c.AuthConfigPath = cast.ToString(getOrReturnDefault("AUTH_CONFIG_PATH", "./config/auth.conf"))
+	c.CSVFilePath = cast.ToString(getOrReturnDefault("CSV_FILE_PATH", "./config/auth.csv"))
 	// Email sending
 	c.SMTPEmail = cast.ToString(getOrReturnDefault("SMTP_EMAIL", "youremail@gmail.com"))
 	c.SMTPEmailPass = cast.ToString(getOrReturnDefault("SMTP_EMAIL_PASS", "YOUR_EMAIL_PASSWORD"))
 	c.SMTPHost = cast.ToString(getOrReturnDefault("SMTP_HOST", "smtp host"))
 	c.SMTPPort = cast.ToString(getOrReturnDefault("SMTP_PORT", "587"))
+
+	// in mermory storage
+	c.RedisHost = cast.ToString(getOrReturnDefault("REDIS_HOST", "localhost"))
+	c.RedisPort = cast.ToString(getOrReturnDefault("REDIS_PORT", "6379"))
 	return c
 }
 

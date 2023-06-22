@@ -1,4 +1,4 @@
-package redis
+package redisrepo
 
 
 type InMemoryStorageI interface {
