@@ -90,7 +90,8 @@ func New(log *logger.Logger, cfg config.Config, strg storage.StorageI) *gin.Engi
 	api := router.Group("/v1")
 
 	user := api.Group("/user")
-	user.POST("", h.UserCreate)
+	user.GET("/check/:email", h.UserCheck)
+	user.POST("", h.UserRegister)
 	user.GET("/:id", h.UserGet)
 	user.GET("/list", h.UserFind)
 	user.PUT("", h.UserUpdate)

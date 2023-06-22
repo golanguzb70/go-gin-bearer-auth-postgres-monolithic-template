@@ -1,11 +1,30 @@
 package models
 
-type UserCreateReq struct {
+type UserCheckRes struct {
+	Status string `json:"status"`
+}
+
+type UserCheckResponse struct {
+	ErrorCode    int           `json:"error_code"`
+	ErrorMessage string        `json:"error_message"`
+	Body         *UserCheckRes `json:"body"`
+}
+
+type UserRegisterReq struct {
 	UserName string `json:"user_name"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
+type UserCreateReq struct {
+	Id       string `json:"id"`
+	UserName string `json:"user_name"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }
 
 type UserUpdateReq struct {
-	Id           int    `json:"id"`
+	Id       int    `json:"id"`
 	UserName string `json:"user_name"`
 }
 
@@ -24,14 +43,14 @@ type UserDeleteReq struct {
 
 type UserFindResponse struct {
 	Users []*UserResponse `json:"users"`
-	Count     int                 `json:"count"`
+	Count int             `json:"count"`
 }
 
 type UserResponse struct {
-	Id           int    `json:"id"`
-	UserName string `json:"user_name"`
-	CreatedAt    string `json:"created_at"`
-	UpdatedAt    string `json:"updated_at"`
+	Id        int    `json:"id"`
+	UserName  string `json:"user_name"`
+	CreatedAt string `json:"created_at"`
+	UpdatedAt string `json:"updated_at"`
 }
 
 type UserApiResponse struct {

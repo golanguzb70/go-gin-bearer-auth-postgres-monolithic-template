@@ -84,8 +84,51 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.UserCreateReq"
+                            "$ref": "#/definitions/models.UserRegisterReq"
                         }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.UserApiResponse"
+                        }
+                    },
+                    "default": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.DefaultResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/check/{email}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Here user can be created.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Create user",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "email",
+                        "name": "email",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -265,14 +308,6 @@ const docTemplate = `{
                 }
             }
         },
-        "models.UserCreateReq": {
-            "type": "object",
-            "properties": {
-                "user_name": {
-                    "type": "string"
-                }
-            }
-        },
         "models.UserFindResponse": {
             "type": "object",
             "properties": {
@@ -284,6 +319,20 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/models.UserResponse"
                     }
+                }
+            }
+        },
+        "models.UserRegisterReq": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "user_name": {
+                    "type": "string"
                 }
             }
         },

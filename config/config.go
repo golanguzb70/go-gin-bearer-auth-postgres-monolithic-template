@@ -10,6 +10,8 @@ import (
 
 // Config ...
 type Config struct {
+	OtpTimeout                uint8 // seconds
+	ContectTimeout            uint8
 	Environment               string // develop, staging, production
 	LogLevel                  string // DEBUG, INFO ...
 	HTTPPort                  string
@@ -68,6 +70,8 @@ func Load() Config {
 	// in mermory storage
 	c.RedisHost = cast.ToString(getOrReturnDefault("REDIS_HOST", "localhost"))
 	c.RedisPort = cast.ToString(getOrReturnDefault("REDIS_PORT", "6379"))
+	c.OtpTimeout = cast.ToUint8(getOrReturnDefault("OTP_TIMEOUT", 300))
+	c.ContectTimeout = cast.ToUint8(getOrReturnDefault("CONTEXT_TIMOUT", 7))
 	return c
 }
 

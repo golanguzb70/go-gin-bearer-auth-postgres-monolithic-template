@@ -10,8 +10,8 @@ services:
       POSTGRES_DB: userdatabase
     ports:
       - 5433:5432
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+    # volumes:
+    #   - postgres_data:/var/lib/postgresql/data
       
   migrate:
     container_name: migrate
@@ -30,6 +30,11 @@ services:
       - postgres
     restart: on-failure
 
+  redis:
+    container_name: redis
+    image: redis
+    ports:
+      - 6378:6379
 
   app:
     container_name: gin-postgres-basicauth-monolithic
@@ -48,5 +53,5 @@ services:
     ports:
       - 8000:8000
 
-volumes:
-  postgres_data:
+# volumes:
+#   postgres_data:

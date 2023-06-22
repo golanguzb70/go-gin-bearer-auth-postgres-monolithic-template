@@ -25,11 +25,6 @@ definitions:
       error_message:
         type: string
     type: object
-  models.UserCreateReq:
-    properties:
-      user_name:
-        type: string
-    type: object
   models.UserFindResponse:
     properties:
       count:
@@ -38,6 +33,15 @@ definitions:
         items:
           $ref: '#/definitions/models.UserResponse'
         type: array
+    type: object
+  models.UserRegisterReq:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+      user_name:
+        type: string
     type: object
   models.UserResponse:
     properties:
@@ -75,7 +79,7 @@ paths:
         name: post
         required: true
         schema:
-          $ref: '#/definitions/models.UserCreateReq'
+          $ref: '#/definitions/models.UserRegisterReq'
       produces:
       - application/json
       responses:
@@ -168,6 +172,33 @@ paths:
           schema:
             $ref: '#/definitions/models.DefaultResponse'
       summary: Get user by key
+      tags:
+      - User
+  /user/check/{email}:
+    get:
+      consumes:
+      - application/json
+      description: Here user can be created.
+      parameters:
+      - description: email
+        in: path
+        name: email
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.UserApiResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/models.DefaultResponse'
+      security:
+      - BearerAuth: []
+      summary: Create user
       tags:
       - User
   /user/list:

@@ -29,6 +29,7 @@ func SendEmail(to []string, subject string, cfg config.Config, htmlpath string, 
 	mime := "MIME-version: 1.0;\nContent-Type: text/html; charset=\"UTF-8\";\n\n"
 	msg := []byte(fmt.Sprintf("Subject: %s", subject) + mime + k.String())
 	// Authentication.
+	fmt.Println(cfg.SMTPEmail, cfg.SMTPEmailPass, cfg.SMTPHost)
 	auth := smtp.PlainAuth("", cfg.SMTPEmail, cfg.SMTPEmailPass, cfg.SMTPHost)
 
 	// Sending email.

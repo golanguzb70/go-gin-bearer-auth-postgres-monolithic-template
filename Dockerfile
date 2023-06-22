@@ -22,6 +22,7 @@ FROM scratch
 # Copy the built executable from the previous stage
 COPY --from=builder /app/binary /app/binary
 COPY --from=builder /app/config /app/config
+COPY --from=builder /app/api/helper /app/api/helper
 
 # Set the working directory inside the container
 WORKDIR /app
