@@ -1,6 +1,7 @@
 package api
 
 import (
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	_ "github.com/golanguzb70/go-gin-bearer-auth-postgres-monolithic-template/api/docs" // docs
 	v1 "github.com/golanguzb70/go-gin-bearer-auth-postgres-monolithic-template/api/handlers/v1"
@@ -44,6 +45,13 @@ func New(log *logger.Logger, cfg config.Config, strg storage.StorageI) *gin.Engi
 		Cfg:      cfg,
 		Postgres: strg,
 	})
+	corsConfig := cors.DefaultConfig()
+	corsConfig.AllowAllOrigins = true
+	corsConfig.AllowCredentials = true
+	corsConfig.AllowHeaders = []string{"*"}
+	corsConfig.AllowBrowserExtensions = true
+	corsConfig.AllowMethods = []string{"*"}
+	router.Use(cors.New(corsConfig))
 
 	api := router.Group("/v1")
 
