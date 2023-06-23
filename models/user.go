@@ -26,12 +26,12 @@ type UserCreateReq struct {
 }
 
 type UserUpdateReq struct {
-	Id       int    `json:"id"`
+	Id       string `json:"id"`
 	UserName string `json:"user_name"`
 }
 
 type UserGetReq struct {
-	Id int `json:"id"`
+	Id string `json:"id"`
 }
 
 type UserFindReq struct {
@@ -40,7 +40,7 @@ type UserFindReq struct {
 }
 
 type UserDeleteReq struct {
-	Id int `json:"id"`
+	Id string `json:"id"`
 }
 
 type UserFindResponse struct {
@@ -49,7 +49,7 @@ type UserFindResponse struct {
 }
 
 type UserResponse struct {
-	Id           int    `json:"id"`
+	Id           string `json:"id"`
 	UserName     string `json:"user_name"`
 	Email        string `json:"email"`
 	Password     string `json:"password"`

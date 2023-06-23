@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -137,7 +136,7 @@ func (h *handlerV1) OtpCheck(ctx *gin.Context) {
 // @Failure     default {object}  models.DefaultResponse
 func (h *handlerV1) UserRegister(ctx *gin.Context) {
 	var (
-		res *models.UserResponse
+		res = &models.UserResponse{}
 	)
 	body := &models.UserRegisterReq{}
 	otpBody := models.Otp{}
@@ -152,10 +151,12 @@ func (h *handlerV1) UserRegister(ctx *gin.Context) {
 		return
 	}
 
-	if otpAny == "" {
-		if HandleBadRequestErrWithMessage(ctx, h.log, fmt.Errorf("otp is not found or expired"), "OtpCheck.h.redis.Get() Empty") {
-			return
-		}
+	if cast.ToString(otpAny) == "" {
+		ctx.JSON(http.StatusBadRequest, models.DefaultResponse{
+			ErrorCode:    ErrorCodeOtpIncorrect,
+			ErrorMessage: "Otp not found",
+		})
+		return
 	}
 
 	err = json.Unmarshal([]byte(cast.ToString(otpAny)), &otpBody)
@@ -191,7 +192,7 @@ func (h *handlerV1) UserRegister(ctx *gin.Context) {
 		Aud:       []string{"template-front"},
 		Log:       h.log,
 	}
-	res.AccessToken, res.RefreshToken, err = h.jwthandler.GenerateAuthJWT()
+	access, refresh, err := h.jwthandler.GenerateAuthJWT()
 	if HandleInternalWithMessage(ctx, h.log, err, "UserRegister.h.jwthandler.GenerateAuthJWT()") {
 		return
 	}
@@ -199,12 +200,12 @@ func (h *handlerV1) UserRegister(ctx *gin.Context) {
 	ctxWithCancel, cancel := context.WithTimeout(context.Background(), time.Second*time.Duration(h.cfg.ContextTimeout))
 	defer cancel()
 
-	req.RefreshToken = res.RefreshToken
+	req.RefreshToken = refresh
 	res, err = h.storage.Postgres().UserCreate(ctxWithCancel, req)
 	if HandleDatabaseLevelWithMessage(ctx, h.log, err, "UserRegister.h.storage.Postgres().UserCreate()") {
 		return
 	}
-
+	res.AccessToken = access
 	ctx.JSON(http.StatusOK, &models.UserApiResponse{
 		ErrorCode:    ErrorSuccessCode,
 		ErrorMessage: "",
@@ -222,13 +223,13 @@ func (h *handlerV1) UserRegister(ctx *gin.Context) {
 // @Success		200 	{object}  models.UserApiResponse
 // @Failure     default {object}  models.DefaultResponse
 func (h *handlerV1) UserGet(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param("id"))
-	if HandleBadRequestErrWithMessage(c, h.log, err, "strconv.Atoi()") {
-		return
-	}
+	// id, err := strconv.Atoi(c.Param("id"))
+	// if HandleBadRequestErrWithMessage(c, h.log, err, "strconv.Atoi()") {
+	// 	return
+	// }
 
 	res, err := h.storage.Postgres().UserGet(context.Background(), &models.UserGetReq{
-		Id: id,
+		// Id: id,
 	})
 	if HandleDatabaseLevelWithMessage(c, h.log, err, "h.storage.Postgres().UserGet()") {
 		return
@@ -315,18 +316,18 @@ func (h *handlerV1) UserUpdate(c *gin.Context) {
 // @Success		200 	{object}  models.DefaultResponse
 // @Failure     default {object}  models.DefaultResponse
 func (h *handlerV1) UserDelete(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param("id"))
-	if HandleBadRequestErrWithMessage(c, h.log, err, "strconv.Atoi()") {
-		return
-	}
+	// id, err := strconv.Atoi(c.Param("id"))
+	// if HandleBadRequestErrWithMessage(c, h.log, err, "strconv.Atoi()") {
+	// 	return
+	// }
 
-	err = h.storage.Postgres().UserDelete(context.Background(), &models.UserDeleteReq{Id: id})
-	if HandleDatabaseLevelWithMessage(c, h.log, err, "h.storage.Postgres().UserDelete()") {
-		return
-	}
+	// err = h.storage.Postgres().UserDelete(context.Background(), &models.UserDeleteReq{Id: id})
+	// if HandleDatabaseLevelWithMessage(c, h.log, err, "h.storage.Postgres().UserDelete()") {
+	// 	return
+	// }
 
-	c.JSON(http.StatusOK, models.DefaultResponse{
-		ErrorCode:    ErrorSuccessCode,
-		ErrorMessage: "Successfully deleted",
-	})
+	// c.JSON(http.StatusOK, models.DefaultResponse{
+	// 	ErrorCode:    ErrorSuccessCode,
+	// 	ErrorMessage: "Successfully deleted",
+	// })
 }
