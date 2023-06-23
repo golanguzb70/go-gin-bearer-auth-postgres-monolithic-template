@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/Masterminds/squirrel"
@@ -30,14 +31,24 @@ func (r *postgresRepo) UserCreate(ctx context.Context, req *models.UserCreateReq
 }
 
 func (r *postgresRepo) UserGet(ctx context.Context, req *models.UserGetReq) (*models.UserResponse, error) {
-	query := r.Db.Builder.Select("id, user_name, created_at, updated_at").
-		From("users").
-		Where(squirrel.Eq{"id": req.Id})
+	query := r.Db.Builder.Select("id, user_name, email, hashed_password, refresh_token, created_at, updated_at").
+		From("users")
+
+	if req.Id != "" {
+		query = query.Where(squirrel.Eq{"id": req.Id})
+	} else if req.Email != "" {
+		query = query.Where(squirrel.Eq{"email": req.Email})
+	} else if req.UserName != "" {
+		query = query.Where(squirrel.Eq{"user_name": req.UserName})
+	} else {
+		return &models.UserResponse{}, fmt.Errorf("at least one filter should be exists")
+	}
 
 	res := &models.UserResponse{}
 	err := query.RunWith(r.Db.Db).QueryRow().Scan(
 		&res.Id, &res.UserName,
-		&CreatedAt, &UpdatedAt,
+		&res.Email, &res.Password,
+		&res.RefreshToken, &CreatedAt, &UpdatedAt,
 	)
 	if err != nil {
 		return res, HandleDatabaseError(err, r.Log, "(r *UserRepo) Get()")

@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS users (
     id UUID NOT NULL PRIMARY KEY,
-    user_name VARCHAR(64) NOT NULL DEFAULT '',
+    user_name VARCHAR(64) NOT NULL UNIQUE,
     email VARCHAR(64) NOT NULL  UNIQUE,
     hashed_password TEXT NOT NULL,
     refresh_token TEXT NOT NULL,

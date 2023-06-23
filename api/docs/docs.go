@@ -178,6 +178,46 @@ const docTemplate = `{
                 }
             }
         },
+        "/user/login": {
+            "post": {
+                "description": "Through this api user is logged in",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "User Login",
+                "parameters": [
+                    {
+                        "description": "User Login",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.UserLoginRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.UserApiResponse"
+                        }
+                    },
+                    "default": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.DefaultResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/user/otp": {
             "get": {
                 "description": "Here otp can be checked if true.",
@@ -376,6 +416,17 @@ const docTemplate = `{
                 }
             }
         },
+        "models.UserLoginRequest": {
+            "type": "object",
+            "properties": {
+                "password": {
+                    "type": "string"
+                },
+                "user_name_or_email": {
+                    "type": "string"
+                }
+            }
+        },
         "models.UserRegisterReq": {
             "type": "object",
             "properties": {
@@ -406,7 +457,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "id": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "password": {
                     "type": "string"
@@ -426,7 +477,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "id": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "user_name": {
                     "type": "string"

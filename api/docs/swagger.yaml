@@ -46,6 +46,13 @@ definitions:
           $ref: '#/definitions/models.UserResponse'
         type: array
     type: object
+  models.UserLoginRequest:
+    properties:
+      password:
+        type: string
+      user_name_or_email:
+        type: string
+    type: object
   models.UserRegisterReq:
     properties:
       email:
@@ -66,7 +73,7 @@ definitions:
       email:
         type: string
       id:
-        type: integer
+        type: string
       password:
         type: string
       refresh_token:
@@ -79,7 +86,7 @@ definitions:
   models.UserUpdateReq:
     properties:
       id:
-        type: integer
+        type: string
       user_name:
         type: string
     type: object
@@ -243,6 +250,32 @@ paths:
           schema:
             $ref: '#/definitions/models.DefaultResponse'
       summary: Get users list
+      tags:
+      - User
+  /user/login:
+    post:
+      consumes:
+      - application/json
+      description: Through this api user is logged in
+      parameters:
+      - description: User Login
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.UserLoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.UserApiResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/models.DefaultResponse'
+      summary: User Login
       tags:
       - User
   /user/otp:

@@ -12,6 +12,7 @@ import (
 	token "github.com/golanguzb70/go-gin-bearer-auth-postgres-monolithic-template/api/tokens"
 	"github.com/golanguzb70/go-gin-bearer-auth-postgres-monolithic-template/models"
 	"github.com/golanguzb70/go-gin-bearer-auth-postgres-monolithic-template/pkg/etc"
+	"github.com/golanguzb70/validator"
 	"github.com/google/uuid"
 	"github.com/spf13/cast"
 )
@@ -206,6 +207,68 @@ func (h *handlerV1) UserRegister(ctx *gin.Context) {
 		return
 	}
 	res.AccessToken = access
+	ctx.JSON(http.StatusOK, &models.UserApiResponse{
+		ErrorCode:    ErrorSuccessCode,
+		ErrorMessage: "",
+		Body:         res,
+	})
+}
+
+// @Router 			/user/login	[POST]
+// @Summary 		User Login
+// @Description  	Through this api user is logged in
+// @Tags 			User
+// @Accept 			json
+// @Produce 		json
+// @Param 	user 	body 	 	models.UserLoginRequest true "User Login"
+// @Success 200 	{object} 	models.UserApiResponse
+// @Failure default {object}  	models.DefaultResponse
+func (h *handlerV1) LoginUser(ctx *gin.Context) {
+	var (
+		body models.UserLoginRequest
+		req  models.UserGetReq
+	)
+	err := ctx.ShouldBindJSON(&body)
+	if HandleBadRequestErrWithMessage(ctx, h.log, err, "c.ShouldBindJSON(&body)") {
+		return
+	}
+
+	isEmail := validator.IsEmail(body.UserNameOrEmail)
+	if isEmail {
+		req.Email = body.UserNameOrEmail
+	} else {
+		req.UserName = body.UserNameOrEmail
+	}
+	ctxWithCancel, cancel := context.WithTimeout(context.Background(), time.Second*time.Duration(h.cfg.ContextTimeout))
+	defer cancel()
+
+	res, err := h.storage.Postgres().UserGet(ctxWithCancel, &req)
+	if HandleBadRequestErrWithMessage(ctx, h.log, err, "LoginUser:h.storage.Postgres().UserGet()") {
+		return
+	}
+
+	if !etc.CheckPasswordHash(body.Password, res.Password) {
+		ctx.JSON(http.StatusConflict, models.DefaultResponse{
+			ErrorCode:    ErrorCodeWrongPassword,
+			ErrorMessage: "Your password is incorrect",
+		})
+		return
+	}
+
+	h.jwthandler = token.JWTHandler{
+		Sub:       req.Id,
+		Role:      "user",
+		SigninKey: h.cfg.SignInKey,
+		Aud:       []string{"template-front"},
+		Log:       h.log,
+	}
+	access, _, err := h.jwthandler.GenerateAuthJWT()
+	if HandleInternalWithMessage(ctx, h.log, err, "UserRegister.h.jwthandler.GenerateAuthJWT()") {
+		return
+	}
+
+	res.AccessToken = access
+	res.Password = ""
 	ctx.JSON(http.StatusOK, &models.UserApiResponse{
 		ErrorCode:    ErrorSuccessCode,
 		ErrorMessage: "",

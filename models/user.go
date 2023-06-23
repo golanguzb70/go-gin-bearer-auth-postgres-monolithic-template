@@ -25,13 +25,20 @@ type UserCreateReq struct {
 	RefreshToken string `json:"refresh_token"`
 }
 
+type UserLoginRequest struct {
+	UserNameOrEmail string `json:"user_name_or_email"`
+	Password        string `json:"password"`
+}
+
 type UserUpdateReq struct {
 	Id       string `json:"id"`
 	UserName string `json:"user_name"`
 }
 
 type UserGetReq struct {
-	Id string `json:"id"`
+	Id       string `json:"id"`
+	Email    string `json:"email"`
+	UserName string `json:"user_name"`
 }
 
 type UserFindReq struct {
