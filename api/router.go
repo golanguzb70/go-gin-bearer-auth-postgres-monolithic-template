@@ -91,6 +91,7 @@ func New(log *logger.Logger, cfg config.Config, strg storage.StorageI) *gin.Engi
 
 	user := api.Group("/user")
 	user.GET("/check/:email", h.UserCheck)
+	user.GET("/otp", h.OtpCheck)
 	user.POST("", h.UserRegister)
 	user.GET("/:id", h.UserGet)
 	user.GET("/list", h.UserFind)

@@ -7,6 +7,18 @@ definitions:
       error_message:
         type: string
     type: object
+  models.OtpCheckResponse:
+    properties:
+      body:
+        properties:
+          is_right:
+            type: boolean
+        type: object
+      error_code:
+        type: integer
+      error_message:
+        type: string
+    type: object
   models.UserApiFindResponse:
     properties:
       body:
@@ -225,6 +237,38 @@ paths:
           schema:
             $ref: '#/definitions/models.DefaultResponse'
       summary: Get users list
+      tags:
+      - User
+  /user/otp:
+    get:
+      consumes:
+      - application/json
+      description: Here otp can be checked if true.
+      parameters:
+      - description: email
+        in: query
+        name: email
+        required: true
+        type: string
+      - description: otp
+        in: query
+        name: otp
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.OtpCheckResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/models.DefaultResponse'
+      security:
+      - BearerAuth: []
+      summary: Check Otp
       tags:
       - User
 securityDefinitions:

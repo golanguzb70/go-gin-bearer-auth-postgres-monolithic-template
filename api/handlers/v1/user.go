@@ -3,6 +3,7 @@ package v1
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -12,6 +13,7 @@ import (
 	"github.com/golanguzb70/go-gin-bearer-auth-postgres-monolithic-template/models"
 	"github.com/golanguzb70/go-gin-bearer-auth-postgres-monolithic-template/pkg/etc"
 	"github.com/google/uuid"
+	"github.com/spf13/cast"
 )
 
 // @Router		/user/check/{email} [GET]
@@ -78,6 +80,48 @@ func (h *handlerV1) UserCheck(ctx *gin.Context) {
 		Body: &models.UserCheckRes{
 			Status: "register",
 		},
+	})
+}
+
+// @Router		/user/otp [GET]
+// @Summary		Check Otp
+// @Tags        User
+// @Description	Here otp can be checked if true.
+// @Security    BearerAuth
+// @Accept      json
+// @Produce		json
+// @Param       email       query     string true "email"
+// @Param       otp       query     string true "otp"
+// @Success		200 	{object}  models.OtpCheckResponse
+// @Failure     default {object}  models.DefaultResponse
+func (h *handlerV1) OtpCheck(ctx *gin.Context) {
+	var (
+		body   models.Otp
+		emailP = ctx.Query("email")
+		otpP   = ctx.Query("otp")
+	)
+
+	otpAny, err := h.redis.Get(emailP)
+	if HandleInternalWithMessage(ctx, h.log, err, "OtpCheck.h.redis.Get()") {
+		return
+	}
+
+	if otpAny == "" {
+		if HandleBadRequestErrWithMessage(ctx, h.log, fmt.Errorf("otp is not found or expired"), "OtpCheck.h.redis.Get() Empty") {
+			return
+		}
+	}
+
+	err = json.Unmarshal([]byte(cast.ToString(otpAny)), &body)
+	if HandleInternalWithMessage(ctx, h.log, err, "OtpCheck.json.Unmarshal()") {
+		return
+	}
+
+	ctx.JSON(http.StatusOK, models.OtpCheckResponse{
+		ErrorCode: ErrorSuccessCode,
+		Body: struct {
+			IsRight bool "json:\"is_right\""
+		}{IsRight: body.Code == otpP},
 	})
 }
 
