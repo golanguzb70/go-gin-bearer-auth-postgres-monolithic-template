@@ -61,12 +61,7 @@ const docTemplate = `{
                 }
             },
             "post": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Here user can be created.",
+                "description": "Here user can be registered.",
                 "consumes": [
                     "application/json"
                 ],
@@ -76,7 +71,7 @@ const docTemplate = `{
                 "tags": [
                     "User"
                 ],
-                "summary": "Create user",
+                "summary": "Register user",
                 "parameters": [
                     {
                         "description": "post info",
@@ -106,11 +101,6 @@ const docTemplate = `{
         },
         "/user/check/{email}": {
             "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
                 "description": "Here user can be created.",
                 "consumes": [
                     "application/json"
@@ -190,11 +180,6 @@ const docTemplate = `{
         },
         "/user/otp": {
             "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
                 "description": "Here otp can be checked if true.",
                 "consumes": [
                     "application/json"
@@ -397,6 +382,9 @@ const docTemplate = `{
                 "email": {
                     "type": "string"
                 },
+                "otp": {
+                    "type": "string"
+                },
                 "password": {
                     "type": "string"
                 },
@@ -408,11 +396,23 @@ const docTemplate = `{
         "models.UserResponse": {
             "type": "object",
             "properties": {
+                "access_token": {
+                    "type": "string"
+                },
                 "created_at": {
+                    "type": "string"
+                },
+                "email": {
                     "type": "string"
                 },
                 "id": {
                     "type": "integer"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "refresh_token": {
+                    "type": "string"
                 },
                 "updated_at": {
                     "type": "string"

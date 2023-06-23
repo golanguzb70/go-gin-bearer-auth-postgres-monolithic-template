@@ -53,12 +53,7 @@
                 }
             },
             "post": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Here user can be created.",
+                "description": "Here user can be registered.",
                 "consumes": [
                     "application/json"
                 ],
@@ -68,7 +63,7 @@
                 "tags": [
                     "User"
                 ],
-                "summary": "Create user",
+                "summary": "Register user",
                 "parameters": [
                     {
                         "description": "post info",
@@ -98,11 +93,6 @@
         },
         "/user/check/{email}": {
             "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
                 "description": "Here user can be created.",
                 "consumes": [
                     "application/json"
@@ -182,11 +172,6 @@
         },
         "/user/otp": {
             "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
                 "description": "Here otp can be checked if true.",
                 "consumes": [
                     "application/json"
@@ -389,6 +374,9 @@
                 "email": {
                     "type": "string"
                 },
+                "otp": {
+                    "type": "string"
+                },
                 "password": {
                     "type": "string"
                 },
@@ -400,11 +388,23 @@
         "models.UserResponse": {
             "type": "object",
             "properties": {
+                "access_token": {
+                    "type": "string"
+                },
                 "created_at": {
+                    "type": "string"
+                },
+                "email": {
                     "type": "string"
                 },
                 "id": {
                     "type": "integer"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "refresh_token": {
+                    "type": "string"
                 },
                 "updated_at": {
                     "type": "string"

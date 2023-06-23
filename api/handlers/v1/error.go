@@ -22,6 +22,7 @@ const (
 	ErrorCodeBadRequest          = 1007
 	ErrorCodeUnauthorized        = 1008
 	ErrorCodeNotAllowed          = 1009
+	ErrorCodeOtpIncorrect        = 1010
 )
 
 func HandleInternalWithMessage(c *gin.Context, l *logger.Logger, err error, message string, args ...interface{}) bool {

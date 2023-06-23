@@ -50,6 +50,8 @@ definitions:
     properties:
       email:
         type: string
+      otp:
+        type: string
       password:
         type: string
       user_name:
@@ -57,10 +59,18 @@ definitions:
     type: object
   models.UserResponse:
     properties:
+      access_token:
+        type: string
       created_at:
+        type: string
+      email:
         type: string
       id:
         type: integer
+      password:
+        type: string
+      refresh_token:
+        type: string
       updated_at:
         type: string
       user_name:
@@ -84,7 +94,7 @@ paths:
     post:
       consumes:
       - application/json
-      description: Here user can be created.
+      description: Here user can be registered.
       parameters:
       - description: post info
         in: body
@@ -103,9 +113,7 @@ paths:
           description: ""
           schema:
             $ref: '#/definitions/models.DefaultResponse'
-      security:
-      - BearerAuth: []
-      summary: Create user
+      summary: Register user
       tags:
       - User
     put:
@@ -208,8 +216,6 @@ paths:
           description: ""
           schema:
             $ref: '#/definitions/models.DefaultResponse'
-      security:
-      - BearerAuth: []
       summary: Create user
       tags:
       - User
@@ -266,8 +272,6 @@ paths:
           description: ""
           schema:
             $ref: '#/definitions/models.DefaultResponse'
-      security:
-      - BearerAuth: []
       summary: Check Otp
       tags:
       - User

@@ -11,13 +11,14 @@ import (
 func (r *postgresRepo) UserCreate(ctx context.Context, req *models.UserCreateReq) (*models.UserResponse, error) {
 	res := &models.UserResponse{}
 	query := r.Db.Builder.Insert("users").Columns(
-		"user_name",
-	).Values(req.UserName).Suffix(
-		"RETURNING id, user_name, created_at, updated_at")
+		"id, user_name, email, hashed_password, refresh_token",
+	).Values(req.Id, req.UserName, req.Email, req.Password, req.RefreshToken).Suffix(
+		"RETURNING id, user_name, email, hashed_password, refresh_token, created_at, updated_at")
 
 	err := query.RunWith(r.Db.Db).Scan(
 		&res.Id, &res.UserName,
-		&CreatedAt, &UpdatedAt,
+		&res.Email, &res.Password,
+		&res.RefreshToken, &CreatedAt, &UpdatedAt,
 	)
 	if err != nil {
 		return res, HandleDatabaseError(err, r.Log, "(r *UserRepo) Create()")

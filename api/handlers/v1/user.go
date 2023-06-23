@@ -10,6 +10,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/golanguzb70/go-gin-bearer-auth-postgres-monolithic-template/api/helper/email"
+	token "github.com/golanguzb70/go-gin-bearer-auth-postgres-monolithic-template/api/tokens"
 	"github.com/golanguzb70/go-gin-bearer-auth-postgres-monolithic-template/models"
 	"github.com/golanguzb70/go-gin-bearer-auth-postgres-monolithic-template/pkg/etc"
 	"github.com/google/uuid"
@@ -20,7 +21,6 @@ import (
 // @Summary		Create user
 // @Tags        User
 // @Description	Here user can be created.
-// @Security    BearerAuth
 // @Accept      json
 // @Produce		json
 // @Param       email       path     string true "email"
@@ -31,7 +31,7 @@ func (h *handlerV1) UserCheck(ctx *gin.Context) {
 		emailP = ctx.Param("email")
 	)
 
-	ctxTimout, cancel := context.WithTimeout(context.Background(), time.Second*time.Duration(h.cfg.ContectTimeout))
+	ctxTimout, cancel := context.WithTimeout(context.Background(), time.Second*time.Duration(h.cfg.ContextTimeout))
 	defer cancel()
 
 	exists, err := h.storage.Postgres().CheckIfExists(ctxTimout, &models.CheckIfExistsReq{
@@ -63,6 +63,8 @@ func (h *handlerV1) UserCheck(ctx *gin.Context) {
 	if HandleInternalWithMessage(ctx, h.log, err, "UserCheck.json.Marshal()") {
 		return
 	}
+
+	fmt.Println("OTP timout: ", h.cfg.OtpTimeout)
 	err = h.redis.SetWithTTL(emailP, string(otpByte), int(h.cfg.OtpTimeout))
 	if HandleInternalWithMessage(ctx, h.log, err, "UserCheck.h.redis.SetWithTTL()") {
 		return
@@ -87,7 +89,6 @@ func (h *handlerV1) UserCheck(ctx *gin.Context) {
 // @Summary		Check Otp
 // @Tags        User
 // @Description	Here otp can be checked if true.
-// @Security    BearerAuth
 // @Accept      json
 // @Produce		json
 // @Param       email       query     string true "email"
@@ -126,47 +127,85 @@ func (h *handlerV1) OtpCheck(ctx *gin.Context) {
 }
 
 // @Router		/user [POST]
-// @Summary		Create user
+// @Summary		Register user
 // @Tags        User
-// @Description	Here user can be created.
-// @Security    BearerAuth
+// @Description	Here user can be registered.
 // @Accept      json
 // @Produce		json
 // @Param       post   body       models.UserRegisterReq true "post info"
 // @Success		200 	{object}  models.UserApiResponse
 // @Failure     default {object}  models.DefaultResponse
-func (h *handlerV1) UserRegister(c *gin.Context) {
+func (h *handlerV1) UserRegister(ctx *gin.Context) {
+	var (
+		res *models.UserResponse
+	)
 	body := &models.UserRegisterReq{}
-	err := c.ShouldBindJSON(&body)
-	if HandleBadRequestErrWithMessage(c, h.log, err, "c.ShouldBindJSON(&body)") {
+	otpBody := models.Otp{}
+
+	err := ctx.ShouldBindJSON(&body)
+	if HandleBadRequestErrWithMessage(ctx, h.log, err, "c.ShouldBindJSON(&body)") {
+		return
+	}
+
+	otpAny, err := h.redis.Get(body.Email)
+	if HandleInternalWithMessage(ctx, h.log, err, "OtpCheck.h.redis.Get()") {
+		return
+	}
+
+	if otpAny == "" {
+		if HandleBadRequestErrWithMessage(ctx, h.log, fmt.Errorf("otp is not found or expired"), "OtpCheck.h.redis.Get() Empty") {
+			return
+		}
+	}
+
+	err = json.Unmarshal([]byte(cast.ToString(otpAny)), &otpBody)
+	if HandleInternalWithMessage(ctx, h.log, err, "OtpCheck.json.Unmarshal()") {
+		return
+	}
+
+	if otpBody.Code != body.Otp {
+		ctx.JSON(http.StatusBadRequest, models.DefaultResponse{
+			ErrorCode:    ErrorCodeOtpIncorrect,
+			ErrorMessage: "Otp incorrect",
+		})
 		return
 	}
 
 	req := &models.UserCreateReq{}
 	err = StructToStruct(body, &req)
-	if HandleInternalWithMessage(c, h.log, err, "UserRegister.StructToStruct(body, &req)") {
+	if HandleInternalWithMessage(ctx, h.log, err, "UserRegister.StructToStruct(body, &req)") {
 		return
 	}
 	req.Id = uuid.New().String()
 
 	req.Password, err = etc.HashPassword(req.Password)
-	if HandleInternalWithMessage(c, h.log, err, "UserRegister.etc.HashPassword(req.Password)") {
+	if HandleInternalWithMessage(ctx, h.log, err, "UserRegister.etc.HashPassword(req.Password)") {
 		return
 	}
 
-	// save to redis
-	// userbyte, err := json.Marshal(models.Otp{
-	// 	Email: req.Email,
-	// 	Code:  etc.GenerateCode(6),
-	// })
-	// err = h.redis.SetWithTTL(req.Email, string(userbyte), int(h.cfg.OtpTimeout))
-
-	res, err := h.storage.Postgres().UserCreate(context.Background(), req)
-	if HandleDatabaseLevelWithMessage(c, h.log, err, "h.storage.Postgres().UserCreate()") {
+	// Create access and refresh tokens JWT
+	h.jwthandler = token.JWTHandler{
+		Sub:       req.Id,
+		Role:      "user",
+		SigninKey: h.cfg.SignInKey,
+		Aud:       []string{"template-front"},
+		Log:       h.log,
+	}
+	res.AccessToken, res.RefreshToken, err = h.jwthandler.GenerateAuthJWT()
+	if HandleInternalWithMessage(ctx, h.log, err, "UserRegister.h.jwthandler.GenerateAuthJWT()") {
 		return
 	}
 
-	c.JSON(http.StatusOK, &models.UserApiResponse{
+	ctxWithCancel, cancel := context.WithTimeout(context.Background(), time.Second*time.Duration(h.cfg.ContextTimeout))
+	defer cancel()
+
+	req.RefreshToken = res.RefreshToken
+	res, err = h.storage.Postgres().UserCreate(ctxWithCancel, req)
+	if HandleDatabaseLevelWithMessage(ctx, h.log, err, "UserRegister.h.storage.Postgres().UserCreate()") {
+		return
+	}
+
+	ctx.JSON(http.StatusOK, &models.UserApiResponse{
 		ErrorCode:    ErrorSuccessCode,
 		ErrorMessage: "",
 		Body:         res,

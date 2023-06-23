@@ -10,8 +10,8 @@ import (
 
 // Config ...
 type Config struct {
-	OtpTimeout                uint8 // seconds
-	ContectTimeout            uint8
+	OtpTimeout                int // seconds
+	ContextTimeout            int
 	Environment               string // develop, staging, production
 	LogLevel                  string // DEBUG, INFO ...
 	HTTPPort                  string
@@ -32,6 +32,7 @@ type Config struct {
 	CSVFilePath               string
 	RedisHost                 string
 	RedisPort                 string
+	AccessTokenTimout         float64 // MINUTES
 }
 
 // Load loads environment vars and inflates Config
@@ -70,8 +71,9 @@ func Load() Config {
 	// in mermory storage
 	c.RedisHost = cast.ToString(getOrReturnDefault("REDIS_HOST", "localhost"))
 	c.RedisPort = cast.ToString(getOrReturnDefault("REDIS_PORT", "6379"))
-	c.OtpTimeout = cast.ToUint8(getOrReturnDefault("OTP_TIMEOUT", 300))
-	c.ContectTimeout = cast.ToUint8(getOrReturnDefault("CONTEXT_TIMOUT", 7))
+	c.OtpTimeout = cast.ToInt(getOrReturnDefault("OTP_TIMEOUT", 300))
+	c.ContextTimeout = cast.ToInt(getOrReturnDefault("CONTEXT_TIMOUT", 7))
+	c.AccessTokenTimout = cast.ToFloat64(getOrReturnDefault("ACCESS_TOKEN_TIMEOUT", 300))
 	return c
 }
 

@@ -14,13 +14,15 @@ type UserRegisterReq struct {
 	UserName string `json:"user_name"`
 	Email    string `json:"email"`
 	Password string `json:"password"`
+	Otp      string `json:"otp"`
 }
 
 type UserCreateReq struct {
-	Id       string `json:"id"`
-	UserName string `json:"user_name"`
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	Id           string `json:"id"`
+	UserName     string `json:"user_name"`
+	Email        string `json:"email"`
+	Password     string `json:"password"`
+	RefreshToken string `json:"refresh_token"`
 }
 
 type UserUpdateReq struct {
@@ -47,10 +49,14 @@ type UserFindResponse struct {
 }
 
 type UserResponse struct {
-	Id        int    `json:"id"`
-	UserName  string `json:"user_name"`
-	CreatedAt string `json:"created_at"`
-	UpdatedAt string `json:"updated_at"`
+	Id           int    `json:"id"`
+	UserName     string `json:"user_name"`
+	Email        string `json:"email"`
+	Password     string `json:"password"`
+	AccessToken  string `json:"access_token"`
+	RefreshToken string `json:"refresh_token"`
+	CreatedAt    string `json:"created_at"`
+	UpdatedAt    string `json:"updated_at"`
 }
 
 type UserApiResponse struct {
