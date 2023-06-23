@@ -64,7 +64,6 @@ func (h *handlerV1) UserCheck(ctx *gin.Context) {
 		return
 	}
 
-	fmt.Println("OTP timout: ", h.cfg.OtpTimeout)
 	err = h.redis.SetWithTTL(emailP, string(otpByte), int(h.cfg.OtpTimeout))
 	if HandleInternalWithMessage(ctx, h.log, err, "UserCheck.h.redis.SetWithTTL()") {
 		return
@@ -276,6 +275,64 @@ func (h *handlerV1) LoginUser(ctx *gin.Context) {
 	})
 }
 
+// @Router 			/user/forgot-password/{user_name_or_email}	[GET]
+// @Summary 		User forgot password
+// @Description  	Through this api user forgot  password can be enabled.
+// @Tags 			User
+// @Accept 			json
+// @Produce 		json
+// @Param       	user_name_or_email       path     string true "user_name_or_email"
+// @Success 200 	{object} 	models.DefaultResponse
+// @Failure default {object}  	models.DefaultResponse
+func (h *handlerV1) UserFogotPassword(ctx *gin.Context) {
+	var (
+		req models.UserGetReq
+	)
+
+	uOre := ctx.Param("user_name_or_email")
+
+	isEmail := validator.IsEmail(uOre)
+	if isEmail {
+		req.Email = uOre
+	} else {
+		req.UserName = uOre
+	}
+	ctxWithCancel, cancel := context.WithTimeout(context.Background(), time.Second*time.Duration(h.cfg.ContextTimeout))
+	defer cancel()
+
+	res, err := h.storage.Postgres().UserGet(ctxWithCancel, &req)
+	if HandleBadRequestErrWithMessage(ctx, h.log, err, "LoginUser:h.storage.Postgres().UserGet()") {
+		return
+	}
+
+	otp := &models.Otp{
+		Email: res.Email,
+		Code:  etc.GenerateCode(6),
+	}
+
+	// save to redis
+	otpByte, err := json.Marshal(otp)
+	if HandleInternalWithMessage(ctx, h.log, err, "UserCheck.json.Marshal()") {
+		return
+	}
+
+	err = h.redis.SetWithTTL(res.Email, string(otpByte), int(h.cfg.OtpTimeout))
+	if HandleInternalWithMessage(ctx, h.log, err, "UserCheck.h.redis.SetWithTTL()") {
+		return
+	}
+
+	// send otp email
+	err = email.SendEmail([]string{res.Email}, "GolangUzb70\n", h.cfg, "./api/helper/email/forgotpassword.html", otp)
+	if HandleInternalWithMessage(ctx, h.log, err, "UserCheck.email.SendEmail()") {
+		return
+	}
+
+	ctx.JSON(http.StatusOK, &models.DefaultResponse{
+		ErrorCode:    ErrorSuccessCode,
+		ErrorMessage: "We have sent otp to your email  address.",
+	})
+}
+
 // @Router		/user/{id} [GET]
 // @Summary		Get user by key
 // @Tags        User
@@ -393,4 +450,5 @@ func (h *handlerV1) UserDelete(c *gin.Context) {
 	// 	ErrorCode:    ErrorSuccessCode,
 	// 	ErrorMessage: "Successfully deleted",
 	// })
+
 }

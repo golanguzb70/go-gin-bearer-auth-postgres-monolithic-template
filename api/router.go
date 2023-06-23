@@ -94,6 +94,7 @@ func New(log *logger.Logger, cfg config.Config, strg storage.StorageI) *gin.Engi
 	user.GET("/otp", h.OtpCheck)
 	user.POST("", h.UserRegister)
 	user.POST("/login", h.LoginUser)
+	user.GET("/forgot-password/:user_name_or_email", h.UserFogotPassword)
 	user.GET("/:id", h.UserGet)
 	user.GET("/list", h.UserFind)
 	user.PUT("", h.UserUpdate)
