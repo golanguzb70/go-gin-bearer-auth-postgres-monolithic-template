@@ -32,7 +32,7 @@ type Config struct {
 	CSVFilePath               string
 	RedisHost                 string
 	RedisPort                 string
-	AccessTokenTimout         float64 // MINUTES
+	AccessTokenTimout         int // MINUTES
 }
 
 // Load loads environment vars and inflates Config
@@ -73,7 +73,7 @@ func Load() Config {
 	c.RedisPort = cast.ToString(getOrReturnDefault("REDIS_PORT", "6379"))
 	c.OtpTimeout = cast.ToInt(getOrReturnDefault("OTP_TIMEOUT", 300))
 	c.ContextTimeout = cast.ToInt(getOrReturnDefault("CONTEXT_TIMOUT", 7))
-	c.AccessTokenTimout = cast.ToFloat64(getOrReturnDefault("ACCESS_TOKEN_TIMEOUT", 300))
+	c.AccessTokenTimout = cast.ToInt(getOrReturnDefault("ACCESS_TOKEN_TIMEOUT", 300))
 	return c
 }
 

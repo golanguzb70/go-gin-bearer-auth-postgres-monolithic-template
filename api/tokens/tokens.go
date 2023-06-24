@@ -39,7 +39,6 @@ func (jwtHandler *JWTHandler) GenerateAuthJWT() (access, refresh string, err err
 	)
 	accessToken = jwt.New(jwt.SigningMethodHS256)
 	refreshToken = jwt.New(jwt.SigningMethodHS256)
-
 	claims = accessToken.Claims.(jwt.MapClaims)
 	claims["sub"] = jwtHandler.Sub
 	claims["exp"] = time.Now().Add(time.Minute * time.Duration(jwtHandler.Timout)).Unix()

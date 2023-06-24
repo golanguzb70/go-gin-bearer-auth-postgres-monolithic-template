@@ -191,6 +191,7 @@ func (h *handlerV1) UserRegister(ctx *gin.Context) {
 		SigninKey: h.cfg.SignInKey,
 		Aud:       []string{"template-front"},
 		Log:       h.log,
+		Timout:    h.cfg.AccessTokenTimout,
 	}
 	access, refresh, err := h.jwthandler.GenerateAuthJWT()
 	if HandleInternalWithMessage(ctx, h.log, err, "UserRegister.h.jwthandler.GenerateAuthJWT()") {
@@ -255,11 +256,12 @@ func (h *handlerV1) LoginUser(ctx *gin.Context) {
 	}
 
 	h.jwthandler = token.JWTHandler{
-		Sub:       req.Id,
+		Sub:       res.Id,
 		Role:      "user",
 		SigninKey: h.cfg.SignInKey,
 		Aud:       []string{"template-front"},
 		Log:       h.log,
+		Timout:    h.cfg.AccessTokenTimout,
 	}
 	access, _, err := h.jwthandler.GenerateAuthJWT()
 	if HandleInternalWithMessage(ctx, h.log, err, "UserRegister.h.jwthandler.GenerateAuthJWT()") {
@@ -414,29 +416,30 @@ func (h *handlerV1) UserForgotPasswordVerify(ctx *gin.Context) {
 	})
 }
 
-// @Router		/user/{id} [GET]
+// @Router		/user/profile [GET]
 // @Summary		Get user by key
 // @Tags        User
-// @Description	Here user can be got.
+// @Description	Here user profile info can be got by id.
+// @Security    BearerAuth
 // @Accept      json
 // @Produce		json
-// @Param       id       path     int true "id"
 // @Success		200 	{object}  models.UserApiResponse
 // @Failure     default {object}  models.DefaultResponse
-func (h *handlerV1) UserGet(c *gin.Context) {
-	// id, err := strconv.Atoi(c.Param("id"))
-	// if HandleBadRequestErrWithMessage(c, h.log, err, "strconv.Atoi()") {
-	// 	return
-	// }
-
+func (h *handlerV1) UserGet(ctx *gin.Context) {
+	claim, err := GetClaims(*h, ctx)
+	if HandleBadRequestErrWithMessage(ctx, h.log, err, "UserGet:GetClaims()") {
+		return
+	}
+	fmt.Println("subject: ", claim.Sub)
 	res, err := h.storage.Postgres().UserGet(context.Background(), &models.UserGetReq{
-		// Id: id,
+		Id: claim.Sub,
 	})
-	if HandleDatabaseLevelWithMessage(c, h.log, err, "h.storage.Postgres().UserGet()") {
+	if HandleDatabaseLevelWithMessage(ctx, h.log, err, "UserGet:h.storage.Postgres().UserGet()") {
 		return
 	}
 
-	c.JSON(http.StatusOK, models.UserApiResponse{
+	res.Password = ""
+	ctx.JSON(http.StatusOK, models.UserApiResponse{
 		ErrorCode:    ErrorSuccessCode,
 		ErrorMessage: "",
 		Body:         res,

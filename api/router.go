@@ -36,7 +36,7 @@ type Option struct {
 
 // @BasePath  /v1
 
-// @securityDefinitions.basic BearerAuth
+// @securityDefinitions.apikey BearerAuth
 // @in header
 // @name Authorization
 func New(log *logger.Logger, cfg config.Config, strg storage.StorageI) *gin.Engine {
@@ -96,8 +96,8 @@ func New(log *logger.Logger, cfg config.Config, strg storage.StorageI) *gin.Engi
 	user.POST("/login", h.LoginUser)
 	user.GET("/forgot-password/:user_name_or_email", h.UserForgotPassword)
 	user.POST("/forgot-password/verify", h.UserForgotPasswordVerify)
-	
-	user.GET("/:id", h.UserGet)
+	user.GET("/profile", h.UserGet)
+
 	user.GET("/list", h.UserFind)
 	user.PUT("", h.UserUpdate)
 	user.DELETE(":id", h.UserDelete)

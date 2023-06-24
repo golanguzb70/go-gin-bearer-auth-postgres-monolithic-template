@@ -192,30 +192,6 @@ paths:
       summary: Delete user
       tags:
       - User
-    get:
-      consumes:
-      - application/json
-      description: Here user can be got.
-      parameters:
-      - description: id
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.UserApiResponse'
-        default:
-          description: ""
-          schema:
-            $ref: '#/definitions/models.DefaultResponse'
-      summary: Get user by key
-      tags:
-      - User
   /user/check/{email}:
     get:
       consumes:
@@ -374,7 +350,30 @@ paths:
       summary: Check Otp
       tags:
       - User
+  /user/profile:
+    get:
+      consumes:
+      - application/json
+      description: Here user profile info can be got by id.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.UserApiResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/models.DefaultResponse'
+      security:
+      - BearerAuth: []
+      summary: Get user by key
+      tags:
+      - User
 securityDefinitions:
   BearerAuth:
-    type: basic
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

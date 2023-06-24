@@ -341,9 +341,14 @@ const docTemplate = `{
                 }
             }
         },
-        "/user/{id}": {
+        "/user/profile": {
             "get": {
-                "description": "Here user can be got.",
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Here user profile info can be got by id.",
                 "consumes": [
                     "application/json"
                 ],
@@ -354,15 +359,6 @@ const docTemplate = `{
                     "User"
                 ],
                 "summary": "Get user by key",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "id",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -377,7 +373,9 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
+            }
+        },
+        "/user/{id}": {
             "delete": {
                 "security": [
                     {
@@ -588,7 +586,9 @@ const docTemplate = `{
     },
     "securityDefinitions": {
         "BearerAuth": {
-            "type": "basic"
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }`
