@@ -19,15 +19,6 @@ definitions:
       error_message:
         type: string
     type: object
-  models.UserApiFindResponse:
-    properties:
-      body:
-        $ref: '#/definitions/models.UserFindResponse'
-      error_code:
-        type: integer
-      error_message:
-        type: string
-    type: object
   models.UserApiResponse:
     properties:
       body:
@@ -37,14 +28,10 @@ definitions:
       error_message:
         type: string
     type: object
-  models.UserFindResponse:
+  models.UserApiUpdateReq:
     properties:
-      count:
-        type: integer
-      users:
-        items:
-          $ref: '#/definitions/models.UserResponse'
-        type: array
+      user_name:
+        type: string
     type: object
   models.UserForgotPasswordVerifyReq:
     properties:
@@ -92,19 +79,6 @@ definitions:
       user_name:
         type: string
     type: object
-  models.UserUpdateReq:
-    properties:
-      email:
-        type: string
-      id:
-        type: string
-      password:
-        type: string
-      refresh_token:
-        type: string
-      user_name:
-        type: string
-    type: object
 info:
   contact: {}
   description: Here QA can test and frontend or mobile developers can get information
@@ -137,7 +111,7 @@ paths:
             $ref: '#/definitions/models.DefaultResponse'
       summary: Register user
       tags:
-      - User
+      - User Authorzation
     put:
       consumes:
       - application/json
@@ -148,7 +122,7 @@ paths:
         name: post
         required: true
         schema:
-          $ref: '#/definitions/models.UserUpdateReq'
+          $ref: '#/definitions/models.UserApiUpdateReq'
       produces:
       - application/json
       responses:
@@ -216,7 +190,7 @@ paths:
             $ref: '#/definitions/models.DefaultResponse'
       summary: Create user
       tags:
-      - User
+      - User Authorzation
   /user/forgot-password/{user_name_or_email}:
     get:
       consumes:
@@ -241,7 +215,7 @@ paths:
             $ref: '#/definitions/models.DefaultResponse'
       summary: User forgot password
       tags:
-      - User
+      - User Authorzation
   /user/forgot-password/verify:
     post:
       consumes:
@@ -267,33 +241,7 @@ paths:
             $ref: '#/definitions/models.DefaultResponse'
       summary: User forgot password
       tags:
-      - User
-  /user/list:
-    get:
-      consumes:
-      - application/json
-      description: Here all users can be got.
-      parameters:
-      - in: query
-        name: limit
-        type: integer
-      - in: query
-        name: page
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.UserApiFindResponse'
-        default:
-          description: ""
-          schema:
-            $ref: '#/definitions/models.DefaultResponse'
-      summary: Get users list
-      tags:
-      - User
+      - User Authorzation
   /user/login:
     post:
       consumes:
@@ -319,7 +267,7 @@ paths:
             $ref: '#/definitions/models.DefaultResponse'
       summary: User Login
       tags:
-      - User
+      - User Authorzation
   /user/otp:
     get:
       consumes:
@@ -349,7 +297,7 @@ paths:
             $ref: '#/definitions/models.DefaultResponse'
       summary: Check Otp
       tags:
-      - User
+      - User Authorzation
   /user/profile:
     get:
       consumes:

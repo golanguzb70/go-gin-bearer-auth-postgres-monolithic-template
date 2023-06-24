@@ -41,7 +41,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.UserUpdateReq"
+                            "$ref": "#/definitions/models.UserApiUpdateReq"
                         }
                     }
                 ],
@@ -69,7 +69,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "User"
+                    "User Authorzation"
                 ],
                 "summary": "Register user",
                 "parameters": [
@@ -109,7 +109,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "User"
+                    "User Authorzation"
                 ],
                 "summary": "Create user",
                 "parameters": [
@@ -147,7 +147,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "User"
+                    "User Authorzation"
                 ],
                 "summary": "User forgot password",
                 "parameters": [
@@ -187,7 +187,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "User"
+                    "User Authorzation"
                 ],
                 "summary": "User forgot password",
                 "parameters": [
@@ -215,47 +215,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/user/list": {
-            "get": {
-                "description": "Here all users can be got.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "User"
-                ],
-                "summary": "Get users list",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "name": "limit",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "name": "page",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/models.UserApiFindResponse"
-                        }
-                    },
-                    "default": {
-                        "description": "",
-                        "schema": {
-                            "$ref": "#/definitions/models.DefaultResponse"
-                        }
-                    }
-                }
-            }
-        },
         "/user/login": {
             "post": {
                 "description": "Through this api user is logged in",
@@ -266,7 +225,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "User"
+                    "User Authorzation"
                 ],
                 "summary": "User Login",
                 "parameters": [
@@ -306,7 +265,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "User"
+                    "User Authorzation"
                 ],
                 "summary": "Check Otp",
                 "parameters": [
@@ -450,20 +409,6 @@ const docTemplate = `{
                 }
             }
         },
-        "models.UserApiFindResponse": {
-            "type": "object",
-            "properties": {
-                "body": {
-                    "$ref": "#/definitions/models.UserFindResponse"
-                },
-                "error_code": {
-                    "type": "integer"
-                },
-                "error_message": {
-                    "type": "string"
-                }
-            }
-        },
         "models.UserApiResponse": {
             "type": "object",
             "properties": {
@@ -478,17 +423,11 @@ const docTemplate = `{
                 }
             }
         },
-        "models.UserFindResponse": {
+        "models.UserApiUpdateReq": {
             "type": "object",
             "properties": {
-                "count": {
-                    "type": "integer"
-                },
-                "users": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.UserResponse"
-                    }
+                "user_name": {
+                    "type": "string"
                 }
             }
         },
@@ -556,26 +495,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "updated_at": {
-                    "type": "string"
-                },
-                "user_name": {
-                    "type": "string"
-                }
-            }
-        },
-        "models.UserUpdateReq": {
-            "type": "object",
-            "properties": {
-                "email": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "password": {
-                    "type": "string"
-                },
-                "refresh_token": {
                     "type": "string"
                 },
                 "user_name": {

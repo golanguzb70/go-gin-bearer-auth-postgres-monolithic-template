@@ -31,11 +31,12 @@ type UserLoginRequest struct {
 }
 
 type UserUpdateReq struct {
-	Id           string `json:"id"`
-	UserName     string `json:"user_name"`
-	Email        string `json:"email"`
-	Password     string `json:"password"`
-	RefreshToken string `json:"refresh_token"`
+	Id       string `json:"id"`
+	UserName string `json:"user_name"`
+}
+
+type UserApiUpdateReq struct {
+	UserName string `json:"user_name"`
 }
 
 type UserGetReq struct {

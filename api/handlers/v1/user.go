@@ -19,7 +19,7 @@ import (
 
 // @Router		/user/check/{email} [GET]
 // @Summary		Create user
-// @Tags        User
+// @Tags        User Authorzation
 // @Description	Here user can be created.
 // @Accept      json
 // @Produce		json
@@ -86,7 +86,7 @@ func (h *handlerV1) UserCheck(ctx *gin.Context) {
 
 // @Router		/user/otp [GET]
 // @Summary		Check Otp
-// @Tags        User
+// @Tags        User Authorzation
 // @Description	Here otp can be checked if true.
 // @Accept      json
 // @Produce		json
@@ -127,7 +127,7 @@ func (h *handlerV1) OtpCheck(ctx *gin.Context) {
 
 // @Router		/user [POST]
 // @Summary		Register user
-// @Tags        User
+// @Tags        User Authorzation
 // @Description	Here user can be registered.
 // @Accept      json
 // @Produce		json
@@ -217,7 +217,7 @@ func (h *handlerV1) UserRegister(ctx *gin.Context) {
 // @Router 			/user/login	[POST]
 // @Summary 		User Login
 // @Description  	Through this api user is logged in
-// @Tags 			User
+// @Tags       		User Authorzation
 // @Accept 			json
 // @Produce 		json
 // @Param 	user 	body 	 	models.UserLoginRequest true "User Login"
@@ -280,7 +280,7 @@ func (h *handlerV1) LoginUser(ctx *gin.Context) {
 // @Router 			/user/forgot-password/{user_name_or_email}	[GET]
 // @Summary 		User forgot password
 // @Description  	Through this api user forgot  password can be enabled.
-// @Tags 			User
+// @Tags            User Authorzation
 // @Accept 			json
 // @Produce 		json
 // @Param       	user_name_or_email       path     string true "user_name_or_email"
@@ -338,7 +338,7 @@ func (h *handlerV1) UserForgotPassword(ctx *gin.Context) {
 // @Router 			/user/forgot-password/verify	[POST]
 // @Summary 		User forgot password
 // @Description  	Through this api user forgot  password can be enabled.
-// @Tags 			User
+// @Tags 			User Authorzation
 // @Accept 			json
 // @Produce 		json
 // @Param 	user 	body 	 	models.UserForgotPasswordVerifyReq true "User Login"
@@ -430,7 +430,6 @@ func (h *handlerV1) UserGet(ctx *gin.Context) {
 	if HandleBadRequestErrWithMessage(ctx, h.log, err, "UserGet:GetClaims()") {
 		return
 	}
-	fmt.Println("subject: ", claim.Sub)
 	res, err := h.storage.Postgres().UserGet(context.Background(), &models.UserGetReq{
 		Id: claim.Sub,
 	})
@@ -446,6 +445,7 @@ func (h *handlerV1) UserGet(ctx *gin.Context) {
 	})
 }
 
+/*
 // @Router		/user/list [GET]
 // @Summary		Get users list
 // @Tags        User
@@ -479,30 +479,42 @@ func (h *handlerV1) UserFind(c *gin.Context) {
 		Body:         res,
 	})
 }
+*/
 
+// @Router		/user [PUT]
 // @Summary		Update user
 // @Tags        User
 // @Description	Here user can be updated.
 // @Security    BearerAuth
 // @Accept      json
 // @Produce		json
-// @Param       post   body       models.UserUpdateReq true "post info"
+// @Param       post   body       models.UserApiUpdateReq true "post info"
 // @Success		200 	{object}  models.UserApiResponse
 // @Failure     default {object}  models.DefaultResponse
-// @Router		/user [PUT]
-func (h *handlerV1) UserUpdate(c *gin.Context) {
-	body := &models.UserUpdateReq{}
-	err := c.ShouldBindJSON(&body)
-	if HandleBadRequestErrWithMessage(c, h.log, err, "c.ShouldBindJSON(&body)") {
+func (h *handlerV1) UserUpdate(ctx *gin.Context) {
+	var (
+		body models.UserApiUpdateReq
+	)
+
+	claim, err := GetClaims(*h, ctx)
+	if HandleBadRequestErrWithMessage(ctx, h.log, err, "UserGet:GetClaims()") {
 		return
 	}
 
-	res, err := h.storage.Postgres().UserUpdate(context.Background(), body)
-	if HandleDatabaseLevelWithMessage(c, h.log, err, "h.storage.Postgres().UserUpdate()") {
+	err = ctx.ShouldBindJSON(&body)
+	if HandleBadRequestErrWithMessage(ctx, h.log, err, "c.ShouldBindJSON(&body)") {
 		return
 	}
 
-	c.JSON(http.StatusOK, &models.UserApiResponse{
+	res, err := h.storage.Postgres().UserUpdate(context.Background(), &models.UserUpdateReq{
+		Id:       claim.Sub,
+		UserName: body.UserName,
+	})
+	if HandleDatabaseLevelWithMessage(ctx, h.log, err, "h.storage.Postgres().UserUpdate()") {
+		return
+	}
+
+	ctx.JSON(http.StatusOK, &models.UserApiResponse{
 		ErrorCode:    ErrorSuccessCode,
 		ErrorMessage: "",
 		Body:         res,

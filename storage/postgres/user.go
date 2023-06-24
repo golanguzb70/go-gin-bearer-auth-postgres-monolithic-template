@@ -105,15 +105,16 @@ func (r *postgresRepo) UserUpdate(ctx context.Context, req *models.UserUpdateReq
 	mp["updated_at"] = time.Now()
 	query := r.Db.Builder.Update("users").SetMap(mp).
 		Where(squirrel.Eq{"id": req.Id}).
-		Suffix("RETURNING id, user_name, created_at, updated_at")
+		Suffix("RETURNING id, user_name, email, hashed_password, refresh_token, created_at, updated_at")
 
 	res := &models.UserResponse{}
 	err := query.RunWith(r.Db.Db).QueryRow().Scan(
 		&res.Id, &res.UserName,
-		&CreatedAt, &UpdatedAt,
+		&res.Email, &res.Password,
+		&res.RefreshToken, &CreatedAt, &UpdatedAt,
 	)
 	if err != nil {
-		return res, HandleDatabaseError(err, r.Log, "(r *models.UserUserRepo) Update()")
+		return res, HandleDatabaseError(err, r.Log, "UserUpdate:query.RunWith(r.Db.Db).QueryRow()")
 	}
 	res.CreatedAt = CreatedAt.Format(time.RFC1123)
 	res.UpdatedAt = UpdatedAt.Format(time.RFC1123)
