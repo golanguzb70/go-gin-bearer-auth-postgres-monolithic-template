@@ -17,7 +17,7 @@ COPY . .
 RUN CGO_ENABLED=0 go build -ldflags="-s -w" -o binary cmd/main.go
 
 # Start a new stage using a minimal base image
-FROM scratch
+FROM alpine:3.18
 
 # Copy the built executable from the previous stage
 COPY --from=builder /app/binary /app/binary
