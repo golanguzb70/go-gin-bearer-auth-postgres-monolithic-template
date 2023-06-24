@@ -18,9 +18,9 @@ import (
 )
 
 // @Router		/user/check/{email} [GET]
-// @Summary		Create user
+// @Summary		Check User status
 // @Tags        User Authorzation
-// @Description	Here user can be created.
+// @Description	Here user status is checked. If user is exists in database it should be logged in else registered
 // @Accept      json
 // @Produce		json
 // @Param       email       path     string true "email"

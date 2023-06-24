@@ -8,3 +8,8 @@ p, unauthorized, /v1/user/forgot-password/verify, POST
 p, user, /v1/user/profile, GET
 p, user, /v1/user, PUT
 p, user, /v1/user, DELETE
+p, user, /v1/template, POST
+p, unauthorized, /v1/template/{id}, GET
+p, unauthorized, /v1/template/list, GET
+p, user, /v1/template, PUT
+p, user, /v1/template/{id}, DELETE
