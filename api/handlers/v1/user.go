@@ -243,7 +243,7 @@ func (h *handlerV1) LoginUser(ctx *gin.Context) {
 	defer cancel()
 
 	res, err := h.storage.Postgres().UserGet(ctxWithCancel, &req)
-	if HandleBadRequestErrWithMessage(ctx, h.log, err, "LoginUser:h.storage.Postgres().UserGet()") {
+	if HandleDatabaseLevelWithMessage(ctx, h.log, err, "LoginUser:h.storage.Postgres().UserGet()") {
 		return
 	}
 
@@ -335,7 +335,7 @@ func (h *handlerV1) UserForgotPassword(ctx *gin.Context) {
 	})
 }
 
-// @Router 			/user/forgot-password/verify	[POST]
+// @Router 	        /user/forgot-password/verify [POST]
 // @Summary 		User forgot password
 // @Description  	Through this api user forgot  password can be enabled.
 // @Tags 			User Authorzation
@@ -521,30 +521,28 @@ func (h *handlerV1) UserUpdate(ctx *gin.Context) {
 	})
 }
 
-// @Router		/user/{id} [DELETE]
+// @Router		/user [DELETE]
 // @Summary		Delete user
 // @Tags        User
-// @Description	Here user can be deleted.
+// @Description	Here user can be deleted, user_id is taken from token.
 // @Security    BearerAuth
 // @Accept      json
 // @Produce		json
-// @Param       id       path     int true "id"
 // @Success		200 	{object}  models.DefaultResponse
 // @Failure     default {object}  models.DefaultResponse
-func (h *handlerV1) UserDelete(c *gin.Context) {
-	// id, err := strconv.Atoi(c.Param("id"))
-	// if HandleBadRequestErrWithMessage(c, h.log, err, "strconv.Atoi()") {
-	// 	return
-	// }
+func (h *handlerV1) UserDelete(ctx *gin.Context) {
+	claim, err := GetClaims(*h, ctx)
+	if HandleBadRequestErrWithMessage(ctx, h.log, err, "UserDelete:GetClaims()") {
+		return
+	}
 
-	// err = h.storage.Postgres().UserDelete(context.Background(), &models.UserDeleteReq{Id: id})
-	// if HandleDatabaseLevelWithMessage(c, h.log, err, "h.storage.Postgres().UserDelete()") {
-	// 	return
-	// }
+	err = h.storage.Postgres().UserDelete(context.Background(), &models.UserDeleteReq{Id: claim.Sub})
+	if HandleDatabaseLevelWithMessage(ctx, h.log, err, "UserDelete: h.storage.Postgres().UserDelete()") {
+		return
+	}
 
-	// c.JSON(http.StatusOK, models.DefaultResponse{
-	// 	ErrorCode:    ErrorSuccessCode,
-	// 	ErrorMessage: "Successfully deleted",
-	// })
-
+	ctx.JSON(http.StatusOK, models.DefaultResponse{
+		ErrorCode:    ErrorSuccessCode,
+		ErrorMessage: "Successfully deleted",
+	})
 }

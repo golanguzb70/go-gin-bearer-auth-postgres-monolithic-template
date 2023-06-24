@@ -98,8 +98,7 @@ func New(log *logger.Logger, cfg config.Config, strg storage.StorageI) *gin.Engi
 	user.POST("/forgot-password/verify", h.UserForgotPasswordVerify)
 	user.GET("/profile", h.UserGet)
 	user.PUT("", h.UserUpdate)
-
-	user.DELETE(":id", h.UserDelete)
+	user.DELETE("", h.UserDelete)
 
 	// Don't delete this line, it is used to modify the file automatically
 

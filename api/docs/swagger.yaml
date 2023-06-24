@@ -87,6 +87,26 @@ info:
   version: "1.0"
 paths:
   /user:
+    delete:
+      consumes:
+      - application/json
+      description: Here user can be deleted, user_id is taken from token.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.DefaultResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/models.DefaultResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete user
+      tags:
+      - User
     post:
       consumes:
       - application/json
@@ -137,33 +157,6 @@ paths:
       security:
       - BearerAuth: []
       summary: Update user
-      tags:
-      - User
-  /user/{id}:
-    delete:
-      consumes:
-      - application/json
-      description: Here user can be deleted.
-      parameters:
-      - description: id
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.DefaultResponse'
-        default:
-          description: ""
-          schema:
-            $ref: '#/definitions/models.DefaultResponse'
-      security:
-      - BearerAuth: []
-      summary: Delete user
       tags:
       - User
   /user/check/{email}:

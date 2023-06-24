@@ -126,5 +126,5 @@ func (r *postgresRepo) UserDelete(ctx context.Context, req *models.UserDeleteReq
 	query := r.Db.Builder.Delete("users").Where(squirrel.Eq{"id": req.Id})
 
 	_, err := query.RunWith(r.Db.Db).Exec()
-	return HandleDatabaseError(err, r.Log, "(r *models.UserUserRepo) Delete()")
+	return HandleDatabaseError(err, r.Log, "UserDelete: query.RunWith(r.Db.Db).Exec()")
 }
