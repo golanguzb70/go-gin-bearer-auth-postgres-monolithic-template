@@ -17,5 +17,6 @@ type PostgresI interface {
 	UserFind(ctx context.Context, req *models.UserFindReq) (*models.UserFindResponse, error)
 	UserUpdate(ctx context.Context, req *models.UserUpdateReq) (*models.UserResponse, error)
 	UserDelete(ctx context.Context, req *models.UserDeleteReq) error
+	
 	// Don't delete this line, it is used to modify the file automatically
 }
