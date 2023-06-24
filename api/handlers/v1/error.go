@@ -12,17 +12,19 @@ import (
 
 // Error Codes
 const (
-	ErrorSuccessCode             = 1000
-	ErrorCodeAccessTokenExpired  = 1001
-	ErrorCodeRefreshTokenExpired = 1002
-	ErrorCodeNotFound            = 1003
-	ErrorCodeInvalidJson         = 1004
-	ErrorCodeWrongPassword       = 1005
-	ErrorCodeInternal            = 1006
-	ErrorCodeBadRequest          = 1007
-	ErrorCodeUnauthorized        = 1008
-	ErrorCodeNotAllowed          = 1009
-	ErrorCodeOtpIncorrect        = 1010
+	ErrorSuccessCode                  = 1000
+	ErrorCodeAccessTokenExpired       = 1001
+	ErrorCodeRefreshTokenExpired      = 1002
+	ErrorCodeNotFound                 = 1003
+	ErrorCodeInvalidJson              = 1004
+	ErrorCodeWrongPassword            = 1005
+	ErrorCodeInternal                 = 1006
+	ErrorCodeBadRequest               = 1007
+	ErrorCodeUnauthorized             = 1008
+	ErrorCodeNotAllowed               = 1009
+	ErrorCodeOtpIncorrect             = 1010
+	ErrorCodeImageSizeExceed          = 1011
+	ErrorCodeImageExtensionNotAllowed = 1012
 )
 
 func HandleInternalWithMessage(c *gin.Context, l *logger.Logger, err error, message string, args ...interface{}) bool {

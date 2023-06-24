@@ -16,6 +16,49 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/media/photo": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Through this api frontent can upload photo and get the link to the media.",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Media"
+                ],
+                "summary": "Upload media",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "File",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.MediaResponse"
+                        }
+                    },
+                    "default": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.DefaultResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/template": {
             "put": {
                 "security": [
@@ -587,6 +630,20 @@ const docTemplate = `{
                 }
             }
         },
+        "models.MediaResponse": {
+            "type": "object",
+            "properties": {
+                "body": {
+                    "$ref": "#/definitions/models.UploadPhotoRes"
+                },
+                "error_code": {
+                    "type": "integer"
+                },
+                "error_message": {
+                    "type": "string"
+                }
+            }
+        },
         "models.OtpCheckResponse": {
             "type": "object",
             "properties": {
@@ -680,6 +737,14 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "template_name": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.UploadPhotoRes": {
+            "type": "object",
+            "properties": {
+                "photo_url": {
                     "type": "string"
                 }
             }

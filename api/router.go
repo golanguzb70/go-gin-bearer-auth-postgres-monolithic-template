@@ -107,6 +107,10 @@ func New(log *logger.Logger, cfg config.Config, strg storage.StorageI) *gin.Engi
 	template.PUT("", h.TemplateUpdate)
 	template.DELETE(":id", h.TemplateDelete)
 
+	media := api.Group("/media")
+	api.Static("/media", "./media")
+	media.POST("/photo", h.UploadMedia)
+
 	// Don't delete this line, it is used to modify the file automatically
 
 	url := ginSwagger.URL("swagger/doc.json")

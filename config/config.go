@@ -33,6 +33,7 @@ type Config struct {
 	RedisHost                 string
 	RedisPort                 string
 	AccessTokenTimout         int // MINUTES
+	MaxImageSize              int // Mb
 }
 
 // Load loads environment vars and inflates Config
@@ -48,7 +49,7 @@ func Load() Config {
 	c.Environment = cast.ToString(getOrReturnDefault("ENVIRONMENT", "develop"))
 	c.LogLevel = cast.ToString(getOrReturnDefault("LOG_LEVEL", "DEBUG"))
 	c.HTTPPort = cast.ToString(getOrReturnDefault("HTTP_PORT", "8000"))
-	c.BaseUrl = cast.ToString(getOrReturnDefault("BASE_URL", "http://localhost:8000/"))
+	c.BaseUrl = cast.ToString(getOrReturnDefault("BASE_URL", "http://localhost:8000/v1/"))
 
 	// Postgres
 	c.PostgresHost = cast.ToString(getOrReturnDefault("POSTGRES_HOST", "localhost"))
@@ -74,6 +75,9 @@ func Load() Config {
 	c.OtpTimeout = cast.ToInt(getOrReturnDefault("OTP_TIMEOUT", 300))
 	c.ContextTimeout = cast.ToInt(getOrReturnDefault("CONTEXT_TIMOUT", 7))
 	c.AccessTokenTimout = cast.ToInt(getOrReturnDefault("ACCESS_TOKEN_TIMEOUT", 300))
+
+	// Media
+	c.MaxImageSize = cast.ToInt(getOrReturnDefault("MAX_IMAGE_SIZE", 5))
 	return c
 }
 

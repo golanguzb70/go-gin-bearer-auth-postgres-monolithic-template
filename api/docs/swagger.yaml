@@ -7,6 +7,15 @@ definitions:
       error_message:
         type: string
     type: object
+  models.MediaResponse:
+    properties:
+      body:
+        $ref: '#/definitions/models.UploadPhotoRes'
+      error_code:
+        type: integer
+      error_message:
+        type: string
+    type: object
   models.OtpCheckResponse:
     properties:
       body:
@@ -67,6 +76,11 @@ definitions:
       id:
         type: integer
       template_name:
+        type: string
+    type: object
+  models.UploadPhotoRes:
+    properties:
+      photo_url:
         type: string
     type: object
   models.UserApiResponse:
@@ -136,6 +150,34 @@ info:
   title: User project API Endpoints
   version: "1.0"
 paths:
+  /media/photo:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Through this api frontent can upload photo and get the link to
+        the media.
+      parameters:
+      - description: File
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.MediaResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/models.DefaultResponse'
+      security:
+      - BearerAuth: []
+      summary: Upload media
+      tags:
+      - Media
   /template:
     post:
       consumes:
