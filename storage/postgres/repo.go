@@ -7,6 +7,9 @@ import (
 )
 
 type PostgresI interface {
+	// common
+	UpdateSingleField(ctx context.Context, req *models.UpdateSingleFieldReq) error
+
 	CheckIfExists(ctx context.Context, req *models.CheckIfExistsReq) (*models.CheckIfExistsRes, error)
 	UserCreate(ctx context.Context, req *models.UserCreateReq) (*models.UserResponse, error)
 	UserGet(ctx context.Context, req *models.UserGetReq) (*models.UserResponse, error)

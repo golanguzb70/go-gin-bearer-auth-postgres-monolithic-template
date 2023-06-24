@@ -137,6 +137,84 @@ const docTemplate = `{
                 }
             }
         },
+        "/user/forgot-password/verify": {
+            "post": {
+                "description": "Through this api user forgot  password can be enabled.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "User forgot password",
+                "parameters": [
+                    {
+                        "description": "User Login",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.UserForgotPasswordVerifyReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.DefaultResponse"
+                        }
+                    },
+                    "default": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.DefaultResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/forgot-password/{user_name_or_email}": {
+            "get": {
+                "description": "Through this api user forgot  password can be enabled.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "User forgot password",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "user_name_or_email",
+                        "name": "user_name_or_email",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.DefaultResponse"
+                        }
+                    },
+                    "default": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.DefaultResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/user/list": {
             "get": {
                 "description": "Here all users can be got.",
@@ -416,6 +494,20 @@ const docTemplate = `{
                 }
             }
         },
+        "models.UserForgotPasswordVerifyReq": {
+            "type": "object",
+            "properties": {
+                "new_password": {
+                    "type": "string"
+                },
+                "otp": {
+                    "type": "string"
+                },
+                "user_name_or_email": {
+                    "type": "string"
+                }
+            }
+        },
         "models.UserLoginRequest": {
             "type": "object",
             "properties": {
@@ -476,7 +568,16 @@ const docTemplate = `{
         "models.UserUpdateReq": {
             "type": "object",
             "properties": {
+                "email": {
+                    "type": "string"
+                },
                 "id": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "refresh_token": {
                     "type": "string"
                 },
                 "user_name": {

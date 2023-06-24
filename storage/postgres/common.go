@@ -20,3 +20,10 @@ func (p *postgresRepo) CheckIfExists(ctx context.Context, req *models.CheckIfExi
 		Exists: res.Bool,
 	}, err
 }
+
+func (p *postgresRepo) UpdateSingleField(ctx context.Context, req *models.UpdateSingleFieldReq) error {
+	query := fmt.Sprintf("UPDATE %s SET %s=$1 where id=$2", req.Table, req.Column)
+
+	_, err := p.Db.Db.Exec(query, req.NewValue, req.Id)
+	return HandleDatabaseError(err, p.Log, "UpdateSingleField")
+}

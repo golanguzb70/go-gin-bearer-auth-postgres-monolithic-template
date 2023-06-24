@@ -46,6 +46,15 @@ definitions:
           $ref: '#/definitions/models.UserResponse'
         type: array
     type: object
+  models.UserForgotPasswordVerifyReq:
+    properties:
+      new_password:
+        type: string
+      otp:
+        type: string
+      user_name_or_email:
+        type: string
+    type: object
   models.UserLoginRequest:
     properties:
       password:
@@ -85,7 +94,13 @@ definitions:
     type: object
   models.UserUpdateReq:
     properties:
+      email:
+        type: string
       id:
+        type: string
+      password:
+        type: string
+      refresh_token:
         type: string
       user_name:
         type: string
@@ -224,6 +239,57 @@ paths:
           schema:
             $ref: '#/definitions/models.DefaultResponse'
       summary: Create user
+      tags:
+      - User
+  /user/forgot-password/{user_name_or_email}:
+    get:
+      consumes:
+      - application/json
+      description: Through this api user forgot  password can be enabled.
+      parameters:
+      - description: user_name_or_email
+        in: path
+        name: user_name_or_email
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.DefaultResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/models.DefaultResponse'
+      summary: User forgot password
+      tags:
+      - User
+  /user/forgot-password/verify:
+    post:
+      consumes:
+      - application/json
+      description: Through this api user forgot  password can be enabled.
+      parameters:
+      - description: User Login
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.UserForgotPasswordVerifyReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.DefaultResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/models.DefaultResponse'
+      summary: User forgot password
       tags:
       - User
   /user/list:

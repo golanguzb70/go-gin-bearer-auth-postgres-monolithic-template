@@ -284,7 +284,7 @@ func (h *handlerV1) LoginUser(ctx *gin.Context) {
 // @Param       	user_name_or_email       path     string true "user_name_or_email"
 // @Success 200 	{object} 	models.DefaultResponse
 // @Failure default {object}  	models.DefaultResponse
-func (h *handlerV1) UserFogotPassword(ctx *gin.Context) {
+func (h *handlerV1) UserForgotPassword(ctx *gin.Context) {
 	var (
 		req models.UserGetReq
 	)
@@ -330,6 +330,87 @@ func (h *handlerV1) UserFogotPassword(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, &models.DefaultResponse{
 		ErrorCode:    ErrorSuccessCode,
 		ErrorMessage: "We have sent otp to your email  address.",
+	})
+}
+
+// @Router 			/user/forgot-password/verify	[POST]
+// @Summary 		User forgot password
+// @Description  	Through this api user forgot  password can be enabled.
+// @Tags 			User
+// @Accept 			json
+// @Produce 		json
+// @Param 	user 	body 	 	models.UserForgotPasswordVerifyReq true "User Login"
+// @Success 200 	{object} 	models.DefaultResponse
+// @Failure default {object}  	models.DefaultResponse
+func (h *handlerV1) UserForgotPasswordVerify(ctx *gin.Context) {
+	var (
+		body    models.UserForgotPasswordVerifyReq
+		req     models.UserGetReq
+		otpBody models.Otp
+	)
+
+	err := ctx.ShouldBindJSON(&body)
+	if HandleBadRequestErrWithMessage(ctx, h.log, err, "c.ShouldBindJSON(&body)") {
+		return
+	}
+
+	isEmail := validator.IsEmail(body.UserNameOrEmail)
+	if isEmail {
+		req.Email = body.UserNameOrEmail
+	} else {
+		req.UserName = body.UserNameOrEmail
+	}
+	ctxWithCancel, cancel := context.WithTimeout(context.Background(), time.Second*time.Duration(h.cfg.ContextTimeout))
+	defer cancel()
+
+	res, err := h.storage.Postgres().UserGet(ctxWithCancel, &req)
+	if HandleBadRequestErrWithMessage(ctx, h.log, err, "UserForgotPasswordVerify:h.storage.Postgres().UserGet()") {
+		return
+	}
+
+	otpAny, err := h.redis.Get(res.Email)
+	if HandleInternalWithMessage(ctx, h.log, err, "UserForgotPasswordVerify.h.redis.Get()") {
+		return
+	}
+
+	if cast.ToString(otpAny) == "" {
+		ctx.JSON(http.StatusBadRequest, models.DefaultResponse{
+			ErrorCode:    ErrorCodeOtpIncorrect,
+			ErrorMessage: "Otp not found",
+		})
+		return
+	}
+
+	err = json.Unmarshal([]byte(cast.ToString(otpAny)), &otpBody)
+	if HandleInternalWithMessage(ctx, h.log, err, "UserForgotPasswordVerify.json.Unmarshal()") {
+		return
+	}
+
+	if otpBody.Code != body.Otp {
+		ctx.JSON(http.StatusBadRequest, models.DefaultResponse{
+			ErrorCode:    ErrorCodeOtpIncorrect,
+			ErrorMessage: "Otp incorrect",
+		})
+		return
+	}
+	res.Password, err = etc.HashPassword(body.NewPassword)
+	if HandleInternalWithMessage(ctx, h.log, err, "UserForgotPasswordVerify:etc.HashPassword(res.Password)") {
+		return
+	}
+
+	err = h.storage.Postgres().UpdateSingleField(ctxWithCancel, &models.UpdateSingleFieldReq{
+		Id:       res.Id,
+		Table:    "users",
+		Column:   "hashed_password",
+		NewValue: res.Password,
+	})
+	if HandleDatabaseLevelWithMessage(ctx, h.log, err, "UserForgotPasswordVerify:h.storage.Postgres().UpdateSingleField()") {
+		return
+	}
+
+	ctx.JSON(http.StatusOK, &models.DefaultResponse{
+		ErrorCode:    ErrorSuccessCode,
+		ErrorMessage: "Password successfully updated",
 	})
 }
 

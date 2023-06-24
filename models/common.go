@@ -9,3 +9,10 @@ type CheckIfExistsReq struct {
 type CheckIfExistsRes struct {
 	Exists bool
 }
+
+type UpdateSingleFieldReq struct {
+	Id       any
+	Table    string
+	Column   string
+	NewValue any
+}

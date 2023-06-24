@@ -31,8 +31,11 @@ type UserLoginRequest struct {
 }
 
 type UserUpdateReq struct {
-	Id       string `json:"id"`
-	UserName string `json:"user_name"`
+	Id           string `json:"id"`
+	UserName     string `json:"user_name"`
+	Email        string `json:"email"`
+	Password     string `json:"password"`
+	RefreshToken string `json:"refresh_token"`
 }
 
 type UserGetReq struct {
@@ -73,7 +76,13 @@ type UserApiResponse struct {
 }
 
 type UserApiFindResponse struct {
-	ErrorCode    int    `json:"error_code"`
-	ErrorMessage string `json:"error_message"`
-	Body         *UserFindResponse
+	ErrorCode    int               `json:"error_code"`
+	ErrorMessage string            `json:"error_message"`
+	Body         *UserFindResponse `json:"body"`
+}
+
+type UserForgotPasswordVerifyReq struct {
+	NewPassword     string `json:"new_password"`
+	Otp             string `json:"otp"`
+	UserNameOrEmail string `json:"user_name_or_email"`
 }

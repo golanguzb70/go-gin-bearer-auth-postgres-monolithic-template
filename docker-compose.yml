@@ -37,7 +37,7 @@ services:
       - 6378:6379
 
   app:
-    container_name: gin-postgres-basicauth-monolithic
+    container_name: gin-postgres-bearerauth-monolithic
     build:
       context: .
       dockerfile: Dockerfile
