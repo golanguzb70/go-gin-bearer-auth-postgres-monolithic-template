@@ -100,6 +100,13 @@ func New(log *logger.Logger, cfg config.Config, strg storage.StorageI) *gin.Engi
 	user.PUT("", h.UserUpdate)
 	user.DELETE("", h.UserDelete)
 
+	template := api.Group("/template")
+	template.POST("", h.TemplateCreate)
+	template.GET("/:id", h.TemplateGet)
+	template.GET("/list", h.TemplateFind)
+	template.PUT("", h.TemplateUpdate)
+	template.DELETE(":id", h.TemplateDelete)
+
 	// Don't delete this line, it is used to modify the file automatically
 
 	url := ginSwagger.URL("swagger/doc.json")

@@ -17,6 +17,13 @@ type PostgresI interface {
 	UserFind(ctx context.Context, req *models.UserFindReq) (*models.UserFindResponse, error)
 	UserUpdate(ctx context.Context, req *models.UserUpdateReq) (*models.UserResponse, error)
 	UserDelete(ctx context.Context, req *models.UserDeleteReq) error
+
+	// Template 
+	TemplateCreate(ctx context.Context, req *models.TemplateCreateReq) (*models.TemplateResponse, error)
+	TemplateGet(ctx context.Context, req *models.TemplateGetReq) (*models.TemplateResponse, error)
+	TemplateFind(ctx context.Context, req *models.TemplateFindReq) (*models.TemplateFindResponse, error)
+	TemplateUpdate(ctx context.Context, req *models.TemplateUpdateReq) (*models.TemplateResponse, error)
+	TemplateDelete(ctx context.Context, req *models.TemplateDeleteReq) error
 	
 	// Don't delete this line, it is used to modify the file automatically
 }
