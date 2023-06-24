@@ -1,7 +1,3 @@
-# Copyright
-This code template is originally designed and written by [Azizbek Hojimurotov](https://github.com/golanguzb70) and other [contributers](https://github.com/golanguzb70/go-gin-basicauth-postgres-monolithic-template/graphs/contributors).
-Please don't delete or edit this part and [license](https://github.com/golanguzb70/go-gin-basicauth-postgres-monolithic-template/blob/main/LICENSE).
-
 # go-gin-basicauth-monolithic-template
 Being developed...
 
