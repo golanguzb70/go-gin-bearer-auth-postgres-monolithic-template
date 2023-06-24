@@ -3,7 +3,8 @@ Being developed...
 
 # Instructions to run the source code
 Follow the instractions to run the code in your local machine.
-MakeFile, Docker engine and docker compose should be installed in your local machine. 
+MakeFile, Docker engine and docker compose should be installed in your local machine.
+Make sure that you write all needed environment variables into /config/.env file 
 
 To run the program
 ```
