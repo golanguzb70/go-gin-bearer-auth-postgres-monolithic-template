@@ -858,7 +858,7 @@ var SwaggerInfo = &swag.Spec{
 	Host:             "",
 	BasePath:         "/v1",
 	Schemes:          []string{},
-	Title:            "User project API Endpoints",
+	Title:            "Monolithic project API Endpoints",
 	Description:      "Here QA can test and frontend or mobile developers can get information of API endpoints.",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,

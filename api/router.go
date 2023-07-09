@@ -30,7 +30,7 @@ type Option struct {
 }
 
 // New ...
-// @title           User project API Endpoints
+// @title           Monolithic project API Endpoints
 // @version         1.0
 // @description     Here QA can test and frontend or mobile developers can get information of API endpoints.
 

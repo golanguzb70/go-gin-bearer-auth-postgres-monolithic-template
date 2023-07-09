@@ -101,6 +101,7 @@ func (h *handlerV1) TemplateFind(c *gin.Context) {
 	})
 }
 
+// @Router		/template [PUT]
 // @Summary		Update template
 // @Tags        Template
 // @Description	Here template can be updated.
@@ -110,7 +111,6 @@ func (h *handlerV1) TemplateFind(c *gin.Context) {
 // @Param       post   body       models.TemplateUpdateReq true "post info"
 // @Success		200 	{object}  models.TemplateApiResponse
 // @Failure     default {object}  models.DefaultResponse
-// @Router		/template [PUT]
 func (h *handlerV1) TemplateUpdate(c *gin.Context) {
 	body := &models.TemplateUpdateReq{}
 	err := c.ShouldBindJSON(&body)
