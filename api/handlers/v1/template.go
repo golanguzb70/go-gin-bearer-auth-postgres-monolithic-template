@@ -77,19 +77,23 @@ func (h *handlerV1) TemplateGet(c *gin.Context) {
 // @Success		200 	{object}  models.TemplateApiFindResponse
 // @Failure     default {object}  models.DefaultResponse
 func (h *handlerV1) TemplateFind(c *gin.Context) {
-	page, err := ParsePageQueryParam(c)
+	var (
+		dbReq = &models.TemplateFindReq{}
+		err   error
+	)
+	dbReq.Page, err = ParsePageQueryParam(c)
 	if HandleBadRequestErrWithMessage(c, h.log, err, "TemplateFind: helper.ParsePageQueryParam(c)") {
 		return
 	}
-	limit, err := ParseLimitQueryParam(c)
+	dbReq.Limit, err = ParseLimitQueryParam(c)
 	if HandleBadRequestErrWithMessage(c, h.log, err, "TemplateFind: helper.ParseLimitQueryParam(c)") {
 		return
 	}
 
-	res, err := h.storage.Postgres().TemplateFind(context.Background(), &models.TemplateFindReq{
-		Page:  page,
-		Limit: limit,
-	})
+	dbReq.Search = c.Query("search")
+	dbReq.OrderByCreatedAt, _ = strconv.ParseUint(c.Query("order_by_created_at"), 10, 8)
+
+	res, err := h.storage.Postgres().TemplateFind(context.Background(), dbReq)
 	if HandleDatabaseLevelWithMessage(c, h.log, err, "TemplateFind: h.storage.Postgres().TemplateFind()") {
 		return
 	}

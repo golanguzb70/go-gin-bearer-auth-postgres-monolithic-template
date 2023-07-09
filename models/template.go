@@ -14,8 +14,10 @@ type TemplateGetReq struct {
 }
 
 type TemplateFindReq struct {
-	Page  int `json:"page"`
-	Limit int `json:"limit"`
+	Page             int    `json:"page"`
+	Limit            int    `json:"limit"`
+	OrderByCreatedAt uint64 `json:"order_by_created_at"`
+	Search           string `json:"search"`
 }
 
 type TemplateDeleteReq struct {

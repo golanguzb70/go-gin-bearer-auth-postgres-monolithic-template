@@ -3,6 +3,7 @@ package postgres
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/Masterminds/squirrel"
@@ -55,18 +56,37 @@ func (r *postgresRepo) TemplateGet(ctx context.Context, req *models.TemplateGetR
 
 func (r *postgresRepo) TemplateFind(ctx context.Context, req *models.TemplateFindReq) (*models.TemplateFindResponse, error) {
 	var (
-		res = &models.TemplateFindResponse{}
+		res            = &models.TemplateFindResponse{}
+		whereCondition = squirrel.And{}
+		orderBy        = []string{}
 	)
 
-	countQuery := r.Db.Builder.Select("count(1) as count").From("templates").Where("deleted_at is null")
+	if strings.TrimSpace(req.Search) != "" {
+		whereCondition = append(whereCondition, squirrel.ILike{"template_name": req.Search + "%"})
+	}
+
+	if req.OrderByCreatedAt != 0 {
+		if req.OrderByCreatedAt > 0 {
+			orderBy = append(orderBy, "created_at DESC")
+		} else {
+			orderBy = append(orderBy, "created_at ASC")
+		}
+	}
+
+	countQuery := r.Db.Builder.Select("count(1) as count").From("templates").Where("deleted_at is null").Where(whereCondition)
 	err := countQuery.RunWith(r.Db.Db).QueryRow().Scan(&res.Count)
 	if err != nil {
 		return res, HandleDatabaseError(err, r.Log, "TemplateFind: countQuery.RunWith(r.Db.Db).QueryRow().Scan()")
-
 	}
 
 	query := r.Db.Builder.Select("id, template_name, created_at, updated_at").
-		From("templates").Where("deleted_at is null").OrderBy("id").Limit(uint64(req.Limit)).Offset(uint64((req.Page - 1) * req.Limit))
+		From("templates").Where("deleted_at is null").Where(whereCondition)
+
+	if len(orderBy) > 0 {
+		query = query.OrderBy(strings.Join(orderBy, ", "))
+	}
+
+	query = query.Limit(uint64(req.Limit)).Offset(uint64((req.Page - 1) * req.Limit))
 
 	rows, err := query.RunWith(r.Db.Db).Query()
 	if err != nil {
