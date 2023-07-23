@@ -24,3 +24,6 @@ compose_up: compose_down
 
 crud:
 	./scripts/crud.sh
+
+create-repo:
+	bash ./scripts/git-lab-hub-repo-creator.sh
