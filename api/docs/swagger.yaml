@@ -24,27 +24,9 @@ definitions:
   models.StandardResponse:
     properties:
       data: {}
-      error_code:
-        type: integer
-      error_message:
+      message:
         type: string
-    type: object
-  models.TemplateApiFindResponse:
-    properties:
-      body:
-        $ref: '#/definitions/models.TemplateFindResponse'
-      error_code:
-        type: integer
-      error_message:
-        type: string
-    type: object
-  models.TemplateApiResponse:
-    properties:
-      body:
-        $ref: '#/definitions/models.TemplateResponse'
-      error_code:
-        type: integer
-      error_message:
+      status:
         type: string
     type: object
   models.TemplateCreateReq:
@@ -66,7 +48,7 @@ definitions:
       created_at:
         type: string
       id:
-        type: integer
+        type: string
       template_name:
         type: string
       updated_at:
@@ -75,7 +57,7 @@ definitions:
   models.TemplateUpdateReq:
     properties:
       id:
-        type: integer
+        type: string
       template_name:
         type: string
     type: object
@@ -84,18 +66,14 @@ definitions:
       photo_url:
         type: string
     type: object
-  models.UserApiResponse:
-    properties:
-      body:
-        $ref: '#/definitions/models.UserResponse'
-      error_code:
-        type: integer
-      error_message:
-        type: string
-    type: object
   models.UserApiUpdateReq:
     properties:
       user_name:
+        type: string
+    type: object
+  models.UserCheckRes:
+    properties:
+      status:
         type: string
     type: object
   models.UserForgotPasswordVerifyReq:
@@ -197,7 +175,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.TemplateApiResponse'
+            $ref: '#/definitions/models.TemplateResponse'
         default:
           description: ""
           schema:
@@ -224,7 +202,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.TemplateApiResponse'
+            $ref: '#/definitions/models.TemplateResponse'
         default:
           description: ""
           schema:
@@ -277,7 +255,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.TemplateApiResponse'
+            $ref: '#/definitions/models.TemplateResponse'
         default:
           description: ""
           schema:
@@ -311,7 +289,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.TemplateApiFindResponse'
+            $ref: '#/definitions/models.TemplateFindResponse'
         default:
           description: ""
           schema:
@@ -359,7 +337,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.UserApiResponse'
+            $ref: '#/definitions/models.UserResponse'
         default:
           description: ""
           schema:
@@ -384,7 +362,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.UserApiResponse'
+            $ref: '#/definitions/models.UserResponse'
         default:
           description: ""
           schema:
@@ -412,7 +390,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.UserApiResponse'
+            $ref: '#/definitions/models.UserCheckRes'
         default:
           description: ""
           schema:
@@ -489,7 +467,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.UserApiResponse'
+            $ref: '#/definitions/models.UserResponse'
         default:
           description: ""
           schema:
@@ -538,7 +516,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.UserApiResponse'
+            $ref: '#/definitions/models.UserResponse'
         default:
           description: ""
           schema:

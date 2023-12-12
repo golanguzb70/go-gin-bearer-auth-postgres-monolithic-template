@@ -17,7 +17,7 @@ import (
 // @Accept      json
 // @Produce		json
 // @Param       post   body       models.TemplateCreateReq true "post info"
-// @Success		200 	{object}  models.TemplateApiResponse
+// @Success		200 	{object}  models.TemplateResponse
 // @Failure     default {object}  models.StandardResponse
 func (h *handlerV1) TemplateCreate(ctx *gin.Context) {
 	body := &models.TemplateCreateReq{}
@@ -42,7 +42,7 @@ func (h *handlerV1) TemplateCreate(ctx *gin.Context) {
 // @Accept      json
 // @Produce		json
 // @Param       id       path     int true "id"
-// @Success		200 	{object}  models.TemplateApiResponse
+// @Success		200 	{object}  models.TemplateResponse
 // @Failure     default {object}  models.StandardResponse
 func (h *handlerV1) TemplateGet(ctx *gin.Context) {
 	res, err := h.storage.Postgres().TemplateGet(context.Background(), &models.TemplateGetReq{
@@ -64,7 +64,7 @@ func (h *handlerV1) TemplateGet(ctx *gin.Context) {
 // @Accept      json
 // @Produce		json
 // @Param       filters query models.TemplateFindReq true "filters"
-// @Success		200 	{object}  models.TemplateApiFindResponse
+// @Success		200 	{object}  models.TemplateFindResponse
 // @Failure     default {object}  models.StandardResponse
 func (h *handlerV1) TemplateFind(ctx *gin.Context) {
 	var (
@@ -101,7 +101,7 @@ func (h *handlerV1) TemplateFind(ctx *gin.Context) {
 // @Accept      json
 // @Produce		json
 // @Param       post   body       models.TemplateUpdateReq true "post info"
-// @Success		200 	{object}  models.TemplateApiResponse
+// @Success		200 	{object}  models.TemplateResponse
 // @Failure     default {object}  models.StandardResponse
 func (h *handlerV1) TemplateUpdate(ctx *gin.Context) {
 	body := &models.TemplateUpdateReq{}

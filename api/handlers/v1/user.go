@@ -24,7 +24,7 @@ import (
 // @Accept      json
 // @Produce		json
 // @Param       email       path     string true "email"
-// @Success		200 	{object}  models.UserApiResponse
+// @Success		200 	{object}  models.UserCheckRes
 // @Failure     default {object}  models.StandardResponse
 func (h *handlerV1) UserCheck(ctx *gin.Context) {
 	var (
@@ -121,7 +121,7 @@ func (h *handlerV1) OtpCheck(ctx *gin.Context) {
 // @Accept      json
 // @Produce		json
 // @Param       post   body       models.UserRegisterReq true "post info"
-// @Success		200 	{object}  models.UserApiResponse
+// @Success		200 	{object}  models.UserResponse
 // @Failure     default {object}  models.StandardResponse
 func (h *handlerV1) UserRegister(ctx *gin.Context) {
 	var (
@@ -201,7 +201,7 @@ func (h *handlerV1) UserRegister(ctx *gin.Context) {
 // @Accept 			json
 // @Produce 		json
 // @Param 	user 	body 	 	models.UserLoginRequest true "User Login"
-// @Success 200 	{object} 	models.UserApiResponse
+// @Success 200 	{object} 	models.UserResponse
 // @Failure default {object}  	models.StandardResponse
 func (h *handlerV1) LoginUser(ctx *gin.Context) {
 	var (
@@ -384,7 +384,7 @@ func (h *handlerV1) UserForgotPasswordVerify(ctx *gin.Context) {
 // @Security    BearerAuth
 // @Accept      json
 // @Produce		json
-// @Success		200 	{object}  models.UserApiResponse
+// @Success		200 	{object}  models.UserResponse
 // @Failure     default {object}  models.StandardResponse
 func (h *handlerV1) UserGet(ctx *gin.Context) {
 	claim, err := GetClaims(*h, ctx)
@@ -410,7 +410,7 @@ func (h *handlerV1) UserGet(ctx *gin.Context) {
 // @Accept      json
 // @Produce		json
 // @Param       post   body       models.UserApiUpdateReq true "post info"
-// @Success		200 	{object}  models.UserApiResponse
+// @Success		200 	{object}  models.UserResponse
 // @Failure     default {object}  models.StandardResponse
 func (h *handlerV1) UserUpdate(ctx *gin.Context) {
 	var (

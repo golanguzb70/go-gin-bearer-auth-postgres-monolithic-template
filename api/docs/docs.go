@@ -92,7 +92,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.TemplateApiResponse"
+                            "$ref": "#/definitions/models.TemplateResponse"
                         }
                     },
                     "default": {
@@ -135,7 +135,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.TemplateApiResponse"
+                            "$ref": "#/definitions/models.TemplateResponse"
                         }
                     },
                     "default": {
@@ -191,7 +191,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.TemplateApiFindResponse"
+                            "$ref": "#/definitions/models.TemplateFindResponse"
                         }
                     },
                     "default": {
@@ -234,7 +234,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.TemplateApiResponse"
+                            "$ref": "#/definitions/models.TemplateResponse"
                         }
                     },
                     "default": {
@@ -320,7 +320,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.UserApiResponse"
+                            "$ref": "#/definitions/models.UserResponse"
                         }
                     },
                     "default": {
@@ -358,7 +358,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.UserApiResponse"
+                            "$ref": "#/definitions/models.UserResponse"
                         }
                     },
                     "default": {
@@ -428,7 +428,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.UserApiResponse"
+                            "$ref": "#/definitions/models.UserCheckRes"
                         }
                     },
                     "default": {
@@ -546,7 +546,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.UserApiResponse"
+                            "$ref": "#/definitions/models.UserResponse"
                         }
                     },
                     "default": {
@@ -625,7 +625,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.UserApiResponse"
+                            "$ref": "#/definitions/models.UserResponse"
                         }
                     },
                     "default": {
@@ -676,38 +676,10 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "data": {},
-                "error_code": {
-                    "type": "integer"
-                },
-                "error_message": {
+                "message": {
                     "type": "string"
-                }
-            }
-        },
-        "models.TemplateApiFindResponse": {
-            "type": "object",
-            "properties": {
-                "body": {
-                    "$ref": "#/definitions/models.TemplateFindResponse"
                 },
-                "error_code": {
-                    "type": "integer"
-                },
-                "error_message": {
-                    "type": "string"
-                }
-            }
-        },
-        "models.TemplateApiResponse": {
-            "type": "object",
-            "properties": {
-                "body": {
-                    "$ref": "#/definitions/models.TemplateResponse"
-                },
-                "error_code": {
-                    "type": "integer"
-                },
-                "error_message": {
+                "status": {
                     "type": "string"
                 }
             }
@@ -741,7 +713,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "id": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "template_name": {
                     "type": "string"
@@ -755,7 +727,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "id": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "template_name": {
                     "type": "string"
@@ -770,24 +742,18 @@ const docTemplate = `{
                 }
             }
         },
-        "models.UserApiResponse": {
-            "type": "object",
-            "properties": {
-                "body": {
-                    "$ref": "#/definitions/models.UserResponse"
-                },
-                "error_code": {
-                    "type": "integer"
-                },
-                "error_message": {
-                    "type": "string"
-                }
-            }
-        },
         "models.UserApiUpdateReq": {
             "type": "object",
             "properties": {
                 "user_name": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.UserCheckRes": {
+            "type": "object",
+            "properties": {
+                "status": {
                     "type": "string"
                 }
             }
