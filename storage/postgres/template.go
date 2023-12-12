@@ -115,12 +115,15 @@ func (r *postgresRepo) TemplateFind(ctx context.Context, req *models.TemplateFin
 }
 
 func (r *postgresRepo) TemplateUpdate(ctx context.Context, req *models.TemplateUpdateReq) (*models.TemplateResponse, error) {
-	mp := make(map[string]interface{})
+	var (
+		mp             = make(map[string]interface{})
+		whereCondition = squirrel.And{squirrel.Eq{"id": req.Id}}
+	)
 	mp["template_name"] = req.TemplateName
 	mp["updated_at"] = time.Now()
-	
+
 	query := r.Db.Builder.Update("templates").SetMap(mp).
-		Where(squirrel.Eq{"id": req.Id}).
+		Where(whereCondition).
 		Suffix("RETURNING id, template_name, created_at, updated_at")
 
 	res := &models.TemplateResponse{}
@@ -139,7 +142,9 @@ func (r *postgresRepo) TemplateUpdate(ctx context.Context, req *models.TemplateU
 }
 
 func (r *postgresRepo) TemplateDelete(ctx context.Context, req *models.TemplateDeleteReq) error {
-	query := r.Db.Builder.Delete("templates").Where(squirrel.Eq{"id": req.Id})
+	whereCondition := squirrel.And{squirrel.Eq{"id": req.Id}}
+
+	query := r.Db.Builder.Delete("templates").Where(whereCondition)
 
 	_, err := query.RunWith(r.Db.Db).Exec()
 	return HandleDatabaseError(err, r.Log, "TemplateDelete: query.RunWith(r.Db.Db).Exec()")
