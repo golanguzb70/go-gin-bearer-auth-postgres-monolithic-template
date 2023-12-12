@@ -9,7 +9,7 @@ migrate create -ext sql -dir migrations/ -seq $(printf "%s_%s_table" "$method" "
 
 up_query=(
 "CREATE TABLE IF NOT EXISTS ${table}s ("
-"   id BIGSERIAL NOT NULL PRIMARY KEY,"    
+"   id UUID NOT NULL PRIMARY KEY,"    
 "   ${table}_name VARCHAR(64) NOT NULL DEFAULT '',"    
 "   created_at TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),"    
 "   updated_at TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),"    
