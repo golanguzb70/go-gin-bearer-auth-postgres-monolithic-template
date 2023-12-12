@@ -1,13 +1,13 @@
 package middleware
 
 import (
-	"fmt"
 	"net/http"
 	"strings"
 
 	"github.com/casbin/casbin/v2"
 	jwtg "github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
+	v1 "github.com/golanguzb70/go-gin-bearer-auth-postgres-monolithic-template/api/handlers/v1"
 	token "github.com/golanguzb70/go-gin-bearer-auth-postgres-monolithic-template/api/tokens"
 	"github.com/golanguzb70/go-gin-bearer-auth-postgres-monolithic-template/config"
 	"github.com/golanguzb70/go-gin-bearer-auth-postgres-monolithic-template/models"
@@ -61,7 +61,7 @@ func (a *JwtRoleAuth) GetRole(r *http.Request) (string, error) {
 	a.jwtHandler.Token = jwtToken
 	claims, err = a.jwtHandler.ExtractClaims()
 	if err != nil {
-		return "", err
+		return "unauthorized", err
 	}
 
 	return claims["role"].(string), nil
@@ -78,8 +78,7 @@ func (a *JwtRoleAuth) CheckPermission(r *http.Request) (bool, error) {
 
 	allowed, err := a.enforcer.Enforce(user, path, method)
 	if err != nil {
-		fmt.Println(err)
-		panic(err)
+		return false, err
 	}
 
 	return allowed, nil
@@ -87,16 +86,16 @@ func (a *JwtRoleAuth) CheckPermission(r *http.Request) (bool, error) {
 
 // RequirePermission aborts request with 403 status
 func (a *JwtRoleAuth) RequirePermission(c *gin.Context) {
-	c.AbortWithStatusJSON(403, models.DefaultResponse{
-		ErrorCode:    403,
-		ErrorMessage: "Permission denied",
+	c.AbortWithStatusJSON(403, models.StandardResponse{
+		Status:  v1.PermissionDenied,
+		Message: "Permission denied",
 	})
 }
 
 // RequireRefresh aborts request with 401 status
 func (a *JwtRoleAuth) RequireRefresh(c *gin.Context) {
-	c.AbortWithStatusJSON(http.StatusUnauthorized, models.DefaultResponse{
-		ErrorCode:    401,
-		ErrorMessage: "Access token has expired",
+	c.AbortWithStatusJSON(401, models.StandardResponse{
+		Status:  v1.AccessTokenExpired,
+		Message: "Access token expired",
 	})
 }

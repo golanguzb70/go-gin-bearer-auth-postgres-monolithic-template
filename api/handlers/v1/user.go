@@ -25,7 +25,7 @@ import (
 // @Produce		json
 // @Param       email       path     string true "email"
 // @Success		200 	{object}  models.UserApiResponse
-// @Failure     default {object}  models.DefaultResponse
+// @Failure     default {object}  models.StandardResponse
 func (h *handlerV1) UserCheck(ctx *gin.Context) {
 	var (
 		emailP = ctx.Param("email")
@@ -39,17 +39,13 @@ func (h *handlerV1) UserCheck(ctx *gin.Context) {
 		Column: "email",
 		Value:  emailP,
 	})
-	if HandleDatabaseLevelWithMessage(ctx, h.log, err, "UserCheck.Postgres().CheckIfExists()") {
+	if h.HandleDatabaseLevelWithMessage(ctx, err, "UserCheck: Postgres().CheckIfExists()") {
 		return
 	}
 
 	if exists.Exists {
-		ctx.JSON(http.StatusOK, models.UserCheckResponse{
-			ErrorCode:    ErrorSuccessCode,
-			ErrorMessage: "",
-			Body: &models.UserCheckRes{
-				Status: "login",
-			},
+		h.HandleResponse(ctx, nil, http.StatusOK, Success, "", &models.UserCheckRes{
+			Status: "login",
 		})
 		return
 	}
@@ -60,27 +56,23 @@ func (h *handlerV1) UserCheck(ctx *gin.Context) {
 	}
 	// save to redis
 	otpByte, err := json.Marshal(otp)
-	if HandleInternalWithMessage(ctx, h.log, err, "UserCheck.json.Marshal()") {
+	if h.HandleResponse(ctx, err, http.StatusInternalServerError, InternalServerError, "UserCheck: json.Marshal(otp)", nil) {
 		return
 	}
 
 	err = h.redis.SetWithTTL(emailP, string(otpByte), int(h.cfg.OtpTimeout))
-	if HandleInternalWithMessage(ctx, h.log, err, "UserCheck.h.redis.SetWithTTL()") {
+	if h.HandleResponse(ctx, err, http.StatusInternalServerError, InternalServerError, "UserCheck: redis.SetWithTTL()", nil) {
 		return
 	}
 
 	// send otp email
 	err = email.SendEmail([]string{emailP}, "GolangUzb70\n", h.cfg, "./api/helper/email/emailotp.html", otp)
-	if HandleInternalWithMessage(ctx, h.log, err, "UserCheck.email.SendEmail()") {
+	if h.HandleResponse(ctx, err, http.StatusInternalServerError, InternalServerError, "UserCheck: email.SendEmail()", nil) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, models.UserCheckResponse{
-		ErrorCode:    ErrorSuccessCode,
-		ErrorMessage: "",
-		Body: &models.UserCheckRes{
-			Status: "register",
-		},
+	h.HandleResponse(ctx, nil, http.StatusOK, Success, "", &models.UserCheckRes{
+		Status: "register",
 	})
 }
 
@@ -93,36 +85,33 @@ func (h *handlerV1) UserCheck(ctx *gin.Context) {
 // @Param       email       query     string true "email"
 // @Param       otp       query     string true "otp"
 // @Success		200 	{object}  models.OtpCheckResponse
-// @Failure     default {object}  models.DefaultResponse
+// @Failure     default {object}  models.StandardResponse
 func (h *handlerV1) OtpCheck(ctx *gin.Context) {
 	var (
 		body   models.Otp
 		emailP = ctx.Query("email")
-		otpP   = ctx.Query("otp")
+		otp    = ctx.Query("otp")
 	)
 
 	otpAny, err := h.redis.Get(emailP)
-	if HandleInternalWithMessage(ctx, h.log, err, "OtpCheck.h.redis.Get()") {
+	if h.HandleResponse(ctx, err, http.StatusInternalServerError, InternalServerError, "OtpCheck: json.redis.Get()", nil) {
 		return
 	}
 
 	if otpAny == "" {
-		if HandleBadRequestErrWithMessage(ctx, h.log, fmt.Errorf("otp is not found or expired"), "OtpCheck.h.redis.Get() Empty") {
+		if h.HandleResponse(ctx, fmt.Errorf(NotFound), http.StatusBadRequest, NotFound, "otp expired", nil) {
 			return
 		}
 	}
 
 	err = json.Unmarshal([]byte(cast.ToString(otpAny)), &body)
-	if HandleInternalWithMessage(ctx, h.log, err, "OtpCheck.json.Unmarshal()") {
+	if h.HandleResponse(ctx, err, http.StatusInternalServerError, InternalServerError, "OtpCheck: json.Unmarshal()", nil) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, models.OtpCheckResponse{
-		ErrorCode: ErrorSuccessCode,
-		Body: struct {
-			IsRight bool "json:\"is_right\""
-		}{IsRight: body.Code == otpP},
-	})
+	h.HandleResponse(ctx, nil, http.StatusOK, Success, "", struct {
+		IsRight bool `json:"is_right"`
+	}{IsRight: body.Code == otp})
 }
 
 // @Router		/user [POST]
@@ -133,7 +122,7 @@ func (h *handlerV1) OtpCheck(ctx *gin.Context) {
 // @Produce		json
 // @Param       post   body       models.UserRegisterReq true "post info"
 // @Success		200 	{object}  models.UserApiResponse
-// @Failure     default {object}  models.DefaultResponse
+// @Failure     default {object}  models.StandardResponse
 func (h *handlerV1) UserRegister(ctx *gin.Context) {
 	var (
 		res = &models.UserResponse{}
@@ -142,45 +131,39 @@ func (h *handlerV1) UserRegister(ctx *gin.Context) {
 	otpBody := models.Otp{}
 
 	err := ctx.ShouldBindJSON(&body)
-	if HandleBadRequestErrWithMessage(ctx, h.log, err, "c.ShouldBindJSON(&body)") {
+	if h.HandleResponse(ctx, err, http.StatusBadRequest, BadRequest, "invalid body", nil) {
 		return
 	}
 
 	otpAny, err := h.redis.Get(body.Email)
-	if HandleInternalWithMessage(ctx, h.log, err, "OtpCheck.h.redis.Get()") {
+	if h.HandleResponse(ctx, err, http.StatusInternalServerError, InternalServerError, "UserRegister: redis.Get()", nil) {
 		return
 	}
 
 	if cast.ToString(otpAny) == "" {
-		ctx.JSON(http.StatusBadRequest, models.DefaultResponse{
-			ErrorCode:    ErrorCodeOtpIncorrect,
-			ErrorMessage: "Otp not found",
-		})
+		h.HandleResponse(ctx, fmt.Errorf(BadRequest), http.StatusBadRequest, BadRequest, "otp expired", nil)
 		return
 	}
 
 	err = json.Unmarshal([]byte(cast.ToString(otpAny)), &otpBody)
-	if HandleInternalWithMessage(ctx, h.log, err, "OtpCheck.json.Unmarshal()") {
+	if h.HandleResponse(ctx, err, http.StatusInternalServerError, InternalServerError, "UserRegister: json.Unmarshal()", nil) {
 		return
 	}
 
 	if otpBody.Code != body.Otp {
-		ctx.JSON(http.StatusBadRequest, models.DefaultResponse{
-			ErrorCode:    ErrorCodeOtpIncorrect,
-			ErrorMessage: "Otp incorrect",
-		})
+		h.HandleResponse(ctx, fmt.Errorf(BadRequest), http.StatusBadRequest, BadRequest, "otp incorrect", nil)
 		return
 	}
 
 	req := &models.UserCreateReq{}
 	err = StructToStruct(body, &req)
-	if HandleInternalWithMessage(ctx, h.log, err, "UserRegister.StructToStruct(body, &req)") {
+	if h.HandleResponse(ctx, err, http.StatusInternalServerError, InternalServerError, "UserRegister: StructToStruct(body, &req)", nil) {
 		return
 	}
 	req.Id = uuid.New().String()
 
 	req.Password, err = etc.HashPassword(req.Password)
-	if HandleInternalWithMessage(ctx, h.log, err, "UserRegister.etc.HashPassword(req.Password)") {
+	if h.HandleResponse(ctx, err, http.StatusInternalServerError, InternalServerError, "UserRegister: etc.HashPassword(req.Password)", nil) {
 		return
 	}
 
@@ -194,7 +177,7 @@ func (h *handlerV1) UserRegister(ctx *gin.Context) {
 		Timout:    h.cfg.AccessTokenTimout,
 	}
 	access, refresh, err := h.jwthandler.GenerateAuthJWT()
-	if HandleInternalWithMessage(ctx, h.log, err, "UserRegister.h.jwthandler.GenerateAuthJWT()") {
+	if h.HandleResponse(ctx, err, http.StatusInternalServerError, InternalServerError, "UserRegister: jwthandler.GenerateAuthJWT()", nil) {
 		return
 	}
 
@@ -203,15 +186,12 @@ func (h *handlerV1) UserRegister(ctx *gin.Context) {
 
 	req.RefreshToken = refresh
 	res, err = h.storage.Postgres().UserCreate(ctxWithCancel, req)
-	if HandleDatabaseLevelWithMessage(ctx, h.log, err, "UserRegister.h.storage.Postgres().UserCreate()") {
+	if h.HandleDatabaseLevelWithMessage(ctx, err, "UserRegister: h.storage.Postgres().UserCreate()") {
 		return
 	}
+
 	res.AccessToken = access
-	ctx.JSON(http.StatusOK, &models.UserApiResponse{
-		ErrorCode:    ErrorSuccessCode,
-		ErrorMessage: "",
-		Body:         res,
-	})
+	h.HandleResponse(ctx, nil, http.StatusOK, Success, "", res)
 }
 
 // @Router 			/user/login	[POST]
@@ -222,14 +202,14 @@ func (h *handlerV1) UserRegister(ctx *gin.Context) {
 // @Produce 		json
 // @Param 	user 	body 	 	models.UserLoginRequest true "User Login"
 // @Success 200 	{object} 	models.UserApiResponse
-// @Failure default {object}  	models.DefaultResponse
+// @Failure default {object}  	models.StandardResponse
 func (h *handlerV1) LoginUser(ctx *gin.Context) {
 	var (
 		body models.UserLoginRequest
 		req  models.UserGetReq
 	)
 	err := ctx.ShouldBindJSON(&body)
-	if HandleBadRequestErrWithMessage(ctx, h.log, err, "c.ShouldBindJSON(&body)") {
+	if h.HandleResponse(ctx, err, http.StatusBadRequest, BadRequest, "invalid body", nil) {
 		return
 	}
 
@@ -243,15 +223,12 @@ func (h *handlerV1) LoginUser(ctx *gin.Context) {
 	defer cancel()
 
 	res, err := h.storage.Postgres().UserGet(ctxWithCancel, &req)
-	if HandleDatabaseLevelWithMessage(ctx, h.log, err, "LoginUser:h.storage.Postgres().UserGet()") {
+	if h.HandleDatabaseLevelWithMessage(ctx, err, "LoginUser:h.storage.Postgres().UserGet()") {
 		return
 	}
 
 	if !etc.CheckPasswordHash(body.Password, res.Password) {
-		ctx.JSON(http.StatusConflict, models.DefaultResponse{
-			ErrorCode:    ErrorCodeWrongPassword,
-			ErrorMessage: "Your password is incorrect",
-		})
+		h.HandleResponse(ctx, fmt.Errorf(BadRequest), http.StatusBadRequest, BadRequest, "incorrect password", nil)
 		return
 	}
 
@@ -264,17 +241,12 @@ func (h *handlerV1) LoginUser(ctx *gin.Context) {
 		Timout:    h.cfg.AccessTokenTimout,
 	}
 	access, _, err := h.jwthandler.GenerateAuthJWT()
-	if HandleInternalWithMessage(ctx, h.log, err, "UserRegister.h.jwthandler.GenerateAuthJWT()") {
+	if h.HandleResponse(ctx, err, http.StatusInternalServerError, InternalServerError, "LoginUser: jwthandler.GenerateAuthJWT()", nil) {
 		return
 	}
 
 	res.AccessToken = access
-	res.Password = ""
-	ctx.JSON(http.StatusOK, &models.UserApiResponse{
-		ErrorCode:    ErrorSuccessCode,
-		ErrorMessage: "",
-		Body:         res,
-	})
+	h.HandleResponse(ctx, nil, http.StatusOK, Success, "", res)
 }
 
 // @Router 			/user/forgot-password/{user_name_or_email}	[GET]
@@ -284,8 +256,8 @@ func (h *handlerV1) LoginUser(ctx *gin.Context) {
 // @Accept 			json
 // @Produce 		json
 // @Param       	user_name_or_email       path     string true "user_name_or_email"
-// @Success 200 	{object} 	models.DefaultResponse
-// @Failure default {object}  	models.DefaultResponse
+// @Success 200 	{object} 	models.StandardResponse
+// @Failure default {object}  	models.StandardResponse
 func (h *handlerV1) UserForgotPassword(ctx *gin.Context) {
 	var (
 		req models.UserGetReq
@@ -303,7 +275,7 @@ func (h *handlerV1) UserForgotPassword(ctx *gin.Context) {
 	defer cancel()
 
 	res, err := h.storage.Postgres().UserGet(ctxWithCancel, &req)
-	if HandleBadRequestErrWithMessage(ctx, h.log, err, "LoginUser:h.storage.Postgres().UserGet()") {
+	if h.HandleDatabaseLevelWithMessage(ctx, err, "UserForgotPassword: storage.Postgres().UserGet()") {
 		return
 	}
 
@@ -314,25 +286,22 @@ func (h *handlerV1) UserForgotPassword(ctx *gin.Context) {
 
 	// save to redis
 	otpByte, err := json.Marshal(otp)
-	if HandleInternalWithMessage(ctx, h.log, err, "UserCheck.json.Marshal()") {
+	if h.HandleResponse(ctx, err, http.StatusInternalServerError, InternalServerError, "UserForgotPassword: json.Marshal(otp)", nil) {
 		return
 	}
 
 	err = h.redis.SetWithTTL(res.Email, string(otpByte), int(h.cfg.OtpTimeout))
-	if HandleInternalWithMessage(ctx, h.log, err, "UserCheck.h.redis.SetWithTTL()") {
+	if h.HandleResponse(ctx, err, http.StatusInternalServerError, InternalServerError, "UserForgotPassword: redis.SetWithTTL()", nil) {
 		return
 	}
 
 	// send otp email
 	err = email.SendEmail([]string{res.Email}, "GolangUzb70\n", h.cfg, "./api/helper/email/forgotpassword.html", otp)
-	if HandleInternalWithMessage(ctx, h.log, err, "UserCheck.email.SendEmail()") {
+	if h.HandleResponse(ctx, err, http.StatusInternalServerError, InternalServerError, "UserForgotPassword: email.SendEmail()", nil) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, &models.DefaultResponse{
-		ErrorCode:    ErrorSuccessCode,
-		ErrorMessage: "We have sent otp to your email  address.",
-	})
+	h.HandleResponse(ctx, err, http.StatusOK, Success, "We have sent otp to your email  address.", nil)
 }
 
 // @Router 	        /user/forgot-password/verify [POST]
@@ -342,8 +311,8 @@ func (h *handlerV1) UserForgotPassword(ctx *gin.Context) {
 // @Accept 			json
 // @Produce 		json
 // @Param 	user 	body 	 	models.UserForgotPasswordVerifyReq true "User Login"
-// @Success 200 	{object} 	models.DefaultResponse
-// @Failure default {object}  	models.DefaultResponse
+// @Success 200 	{object} 	models.StandardResponse
+// @Failure default {object}  	models.StandardResponse
 func (h *handlerV1) UserForgotPasswordVerify(ctx *gin.Context) {
 	var (
 		body    models.UserForgotPasswordVerifyReq
@@ -352,7 +321,7 @@ func (h *handlerV1) UserForgotPasswordVerify(ctx *gin.Context) {
 	)
 
 	err := ctx.ShouldBindJSON(&body)
-	if HandleBadRequestErrWithMessage(ctx, h.log, err, "c.ShouldBindJSON(&body)") {
+	if h.HandleResponse(ctx, err, http.StatusBadRequest, BadRequest, "invalid body", nil) {
 		return
 	}
 
@@ -366,37 +335,32 @@ func (h *handlerV1) UserForgotPasswordVerify(ctx *gin.Context) {
 	defer cancel()
 
 	res, err := h.storage.Postgres().UserGet(ctxWithCancel, &req)
-	if HandleBadRequestErrWithMessage(ctx, h.log, err, "UserForgotPasswordVerify:h.storage.Postgres().UserGet()") {
+	if h.HandleDatabaseLevelWithMessage(ctx, err, "UserForgotPasswordVerify: h.storage.Postgres().UserGet()") {
 		return
 	}
 
 	otpAny, err := h.redis.Get(res.Email)
-	if HandleInternalWithMessage(ctx, h.log, err, "UserForgotPasswordVerify.h.redis.Get()") {
+	if h.HandleResponse(ctx, err, http.StatusInternalServerError, InternalServerError, "UserForgotPasswordVerify: redis.Get(res.Email)", nil) {
 		return
 	}
 
 	if cast.ToString(otpAny) == "" {
-		ctx.JSON(http.StatusBadRequest, models.DefaultResponse{
-			ErrorCode:    ErrorCodeOtpIncorrect,
-			ErrorMessage: "Otp not found",
-		})
+		h.HandleResponse(ctx, err, http.StatusBadRequest, BadRequest, "otp expired", nil)
 		return
 	}
 
 	err = json.Unmarshal([]byte(cast.ToString(otpAny)), &otpBody)
-	if HandleInternalWithMessage(ctx, h.log, err, "UserForgotPasswordVerify.json.Unmarshal()") {
+	if h.HandleResponse(ctx, err, http.StatusInternalServerError, InternalServerError, "UserForgotPasswordVerify: json.Unmarshal()", nil) {
 		return
 	}
 
 	if otpBody.Code != body.Otp {
-		ctx.JSON(http.StatusBadRequest, models.DefaultResponse{
-			ErrorCode:    ErrorCodeOtpIncorrect,
-			ErrorMessage: "Otp incorrect",
-		})
+		h.HandleResponse(ctx, err, http.StatusBadRequest, BadRequest, "otp incorrect", nil)
 		return
 	}
+
 	res.Password, err = etc.HashPassword(body.NewPassword)
-	if HandleInternalWithMessage(ctx, h.log, err, "UserForgotPasswordVerify:etc.HashPassword(res.Password)") {
+	if h.HandleResponse(ctx, err, http.StatusInternalServerError, InternalServerError, "UserForgotPasswordVerify: etc.HashPassword(body.NewPassword)", nil) {
 		return
 	}
 
@@ -406,14 +370,11 @@ func (h *handlerV1) UserForgotPasswordVerify(ctx *gin.Context) {
 		Column:   "hashed_password",
 		NewValue: res.Password,
 	})
-	if HandleDatabaseLevelWithMessage(ctx, h.log, err, "UserForgotPasswordVerify:h.storage.Postgres().UpdateSingleField()") {
+	if h.HandleDatabaseLevelWithMessage(ctx, err, "UserForgotPasswordVerify:h.storage.Postgres().UpdateSingleField()") {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, &models.DefaultResponse{
-		ErrorCode:    ErrorSuccessCode,
-		ErrorMessage: "Password successfully updated",
-	})
+	h.HandleResponse(ctx, err, http.StatusOK, Success, "Password successfully updated", nil)
 }
 
 // @Router		/user/profile [GET]
@@ -424,62 +385,22 @@ func (h *handlerV1) UserForgotPasswordVerify(ctx *gin.Context) {
 // @Accept      json
 // @Produce		json
 // @Success		200 	{object}  models.UserApiResponse
-// @Failure     default {object}  models.DefaultResponse
+// @Failure     default {object}  models.StandardResponse
 func (h *handlerV1) UserGet(ctx *gin.Context) {
 	claim, err := GetClaims(*h, ctx)
-	if HandleBadRequestErrWithMessage(ctx, h.log, err, "UserGet:GetClaims()") {
+	if h.HandleResponse(ctx, err, http.StatusUnauthorized, UnAuthorized, "invalid authorization", nil) {
 		return
 	}
+
 	res, err := h.storage.Postgres().UserGet(context.Background(), &models.UserGetReq{
 		Id: claim.Sub,
 	})
-	if HandleDatabaseLevelWithMessage(ctx, h.log, err, "UserGet:h.storage.Postgres().UserGet()") {
+	if h.HandleDatabaseLevelWithMessage(ctx, err, "UserGet:h.storage.Postgres().UserGet()") {
 		return
 	}
 
-	res.Password = ""
-	ctx.JSON(http.StatusOK, models.UserApiResponse{
-		ErrorCode:    ErrorSuccessCode,
-		ErrorMessage: "",
-		Body:         res,
-	})
+	h.HandleResponse(ctx, nil, http.StatusOK, Success, "", res)
 }
-
-/*
-// @Router		/user/list [GET]
-// @Summary		Get users list
-// @Tags        User
-// @Description	Here all users can be got.
-// @Accept      json
-// @Produce		json
-// @Param       filters query models.UserFindReq true "filters"
-// @Success		200 	{object}  models.UserApiFindResponse
-// @Failure     default {object}  models.DefaultResponse
-func (h *handlerV1) UserFind(c *gin.Context) {
-	page, err := ParsePageQueryParam(c)
-	if HandleBadRequestErrWithMessage(c, h.log, err, "helper.ParsePageQueryParam(c)") {
-		return
-	}
-	limit, err := ParseLimitQueryParam(c)
-	if HandleBadRequestErrWithMessage(c, h.log, err, "helper.ParseLimitQueryParam(c)") {
-		return
-	}
-
-	res, err := h.storage.Postgres().UserFind(context.Background(), &models.UserFindReq{
-		Page:  page,
-		Limit: limit,
-	})
-	if HandleDatabaseLevelWithMessage(c, h.log, err, "h.storage.Postgres().UserFind()") {
-		return
-	}
-
-	c.JSON(http.StatusOK, &models.UserApiFindResponse{
-		ErrorCode:    ErrorSuccessCode,
-		ErrorMessage: "",
-		Body:         res,
-	})
-}
-*/
 
 // @Router		/user [PUT]
 // @Summary		Update user
@@ -490,19 +411,19 @@ func (h *handlerV1) UserFind(c *gin.Context) {
 // @Produce		json
 // @Param       post   body       models.UserApiUpdateReq true "post info"
 // @Success		200 	{object}  models.UserApiResponse
-// @Failure     default {object}  models.DefaultResponse
+// @Failure     default {object}  models.StandardResponse
 func (h *handlerV1) UserUpdate(ctx *gin.Context) {
 	var (
 		body models.UserApiUpdateReq
 	)
 
 	claim, err := GetClaims(*h, ctx)
-	if HandleBadRequestErrWithMessage(ctx, h.log, err, "UserGet:GetClaims()") {
+	if h.HandleResponse(ctx, err, http.StatusUnauthorized, UnAuthorized, "invalid authorization", nil) {
 		return
 	}
 
 	err = ctx.ShouldBindJSON(&body)
-	if HandleBadRequestErrWithMessage(ctx, h.log, err, "c.ShouldBindJSON(&body)") {
+	if h.HandleResponse(ctx, err, http.StatusBadRequest, BadRequest, "invalid body", nil) {
 		return
 	}
 
@@ -510,15 +431,11 @@ func (h *handlerV1) UserUpdate(ctx *gin.Context) {
 		Id:       claim.Sub,
 		UserName: body.UserName,
 	})
-	if HandleDatabaseLevelWithMessage(ctx, h.log, err, "h.storage.Postgres().UserUpdate()") {
+	if h.HandleDatabaseLevelWithMessage(ctx, err, "h.storage.Postgres().UserUpdate()") {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, &models.UserApiResponse{
-		ErrorCode:    ErrorSuccessCode,
-		ErrorMessage: "",
-		Body:         res,
-	})
+	h.HandleResponse(ctx, nil, http.StatusOK, Success, "", res)
 }
 
 // @Router		/user [DELETE]
@@ -528,21 +445,18 @@ func (h *handlerV1) UserUpdate(ctx *gin.Context) {
 // @Security    BearerAuth
 // @Accept      json
 // @Produce		json
-// @Success		200 	{object}  models.DefaultResponse
-// @Failure     default {object}  models.DefaultResponse
+// @Success		200 	{object}  models.StandardResponse
+// @Failure     default {object}  models.StandardResponse
 func (h *handlerV1) UserDelete(ctx *gin.Context) {
 	claim, err := GetClaims(*h, ctx)
-	if HandleBadRequestErrWithMessage(ctx, h.log, err, "UserDelete:GetClaims()") {
+	if h.HandleResponse(ctx, err, http.StatusUnauthorized, UnAuthorized, "invalid authorization", nil) {
 		return
 	}
 
 	err = h.storage.Postgres().UserDelete(context.Background(), &models.UserDeleteReq{Id: claim.Sub})
-	if HandleDatabaseLevelWithMessage(ctx, h.log, err, "UserDelete: h.storage.Postgres().UserDelete()") {
+	if h.HandleDatabaseLevelWithMessage(ctx, err, "UserDelete: h.storage.Postgres().UserDelete()") {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, models.DefaultResponse{
-		ErrorCode:    ErrorSuccessCode,
-		ErrorMessage: "Successfully deleted",
-	})
+	h.HandleResponse(ctx, nil, http.StatusOK, Success, "Successfully deleted", nil)
 }

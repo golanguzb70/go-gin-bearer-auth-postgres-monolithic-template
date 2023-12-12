@@ -5,81 +5,67 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/golanguzb70/go-gin-bearer-auth-postgres-monolithic-template/models"
-	"github.com/golanguzb70/go-gin-bearer-auth-postgres-monolithic-template/pkg/logger"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
-// Error Codes
-const (
-	ErrorSuccessCode                  = 1000
-	ErrorCodeAccessTokenExpired       = 1001
-	ErrorCodeRefreshTokenExpired      = 1002
-	ErrorCodeNotFound                 = 1003
-	ErrorCodeInvalidJson              = 1004
-	ErrorCodeWrongPassword            = 1005
-	ErrorCodeInternal                 = 1006
-	ErrorCodeBadRequest               = 1007
-	ErrorCodeUnauthorized             = 1008
-	ErrorCodeNotAllowed               = 1009
-	ErrorCodeOtpIncorrect             = 1010
-	ErrorCodeImageSizeExceed          = 1011
-	ErrorCodeImageExtensionNotAllowed = 1012
-)
-
-func HandleInternalWithMessage(c *gin.Context, l *logger.Logger, err error, message string, args ...interface{}) bool {
-	if err != nil {
-		l.Error(message, err, args)
-		c.AbortWithStatusJSON(http.StatusInternalServerError, models.DefaultResponse{
-			ErrorCode:    ErrorCodeInternal,
-			ErrorMessage: "Oops something went wrong",
-		})
-		return true
-	}
-
-	return false
-}
-
-func HandleDatabaseLevelWithMessage(c *gin.Context, l *logger.Logger, err error, message string, args ...interface{}) bool {
+func (h *handlerV1) HandleDatabaseLevelWithMessage(c *gin.Context, err error, message string, args ...interface{}) bool {
 	status_err, _ := status.FromError(err)
 	if err != nil {
-		errorCode := ErrorCodeInternal
+		errorCode := InternalServerError
 		statuscode := http.StatusInternalServerError
 		message := status_err.Message()
 		switch status_err.Code() {
 		case codes.NotFound:
-			errorCode = ErrorCodeNotFound
+			errorCode = NotFound
 			statuscode = http.StatusNotFound
 		case codes.Unknown:
-			errorCode = ErrorCodeInternal
+			errorCode = InternalServerError
 			statuscode = http.StatusBadRequest
 			message = "Ooops something went wrong"
 		case codes.Aborted:
-			errorCode = ErrorCodeBadRequest
+			errorCode = BadRequest
 			statuscode = http.StatusBadRequest
 		case codes.InvalidArgument:
-			errorCode = ErrorCodeBadRequest
+			errorCode = BadRequest
 			statuscode = http.StatusBadRequest
 		}
 
-		l.Error(message, err, args)
-		c.AbortWithStatusJSON(statuscode, models.DefaultResponse{
-			ErrorCode:    errorCode,
-			ErrorMessage: message,
+		h.log.Error(message, err, args)
+		c.AbortWithStatusJSON(statuscode, models.StandardResponse{
+			Status:  errorCode,
+			Message: message,
 		})
 		return true
 	}
 	return false
 }
 
-func HandleBadRequestErrWithMessage(c *gin.Context, l *logger.Logger, err error, message string, args ...interface{}) bool {
+// Handles response according to err arguments. If err is nil it returns false otherwise true
+func (h *handlerV1) HandleResponse(c *gin.Context, err error, httpStatusCode int, status, message string, data any, args ...any) bool {
 	if err != nil {
-		l.Error(message, err, args)
-		c.AbortWithStatusJSON(http.StatusBadRequest, models.DefaultResponse{
-			ErrorCode:    ErrorCodeBadRequest,
-			ErrorMessage: "Please enter right information",
-		})
+		if status != InternalServerError {
+			c.AbortWithStatusJSON(httpStatusCode, models.StandardResponse{
+				Status:  status,
+				Message: message,
+				Data:    data,
+			})
+		} else {
+			h.log.Error(message, err, args)
+			c.AbortWithStatusJSON(httpStatusCode, models.StandardResponse{
+				Status:  status,
+				Message: "Internal server error",
+				Data:    data,
+			})
+		}
 		return true
+	} else if status == "success" {
+		c.JSON(httpStatusCode, models.StandardResponse{
+			Status:  status,
+			Message: message,
+			Data:    data,
+		})
 	}
+
 	return false
 }

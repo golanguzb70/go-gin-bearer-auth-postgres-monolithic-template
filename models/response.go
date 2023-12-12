@@ -1,6 +1,7 @@
 package models
 
-type DefaultResponse struct {
-	ErrorCode    int    `json:"error_code"`
-	ErrorMessage string `json:"error_message"`
+type StandardResponse struct {
+	Status  string `json:"status"`
+	Message string `json:"message"`
+	Data    any    `json:"data"`
 }

@@ -18,91 +18,79 @@ import (
 // @Produce		json
 // @Param       post   body       models.TemplateCreateReq true "post info"
 // @Success		200 	{object}  models.TemplateApiResponse
-// @Failure     default {object}  models.DefaultResponse
-func (h *handlerV1) TemplateCreate(c *gin.Context) {
+// @Failure     default {object}  models.StandardResponse
+func (h *handlerV1) TemplateCreate(ctx *gin.Context) {
 	body := &models.TemplateCreateReq{}
-	err := c.ShouldBindJSON(&body)
-	if HandleBadRequestErrWithMessage(c, h.log, err, "c.ShouldBindJSON(&body)") {
+	err := ctx.ShouldBindJSON(&body)
+	if h.HandleResponse(ctx, err, http.StatusBadRequest, BadRequest, "invalid body", nil) {
 		return
 	}
 
 	res, err := h.storage.Postgres().TemplateCreate(context.Background(), body)
-	if HandleDatabaseLevelWithMessage(c, h.log, err, "TemplateCreate: h.storage.Postgres().TemplateCreate()") {
+	if h.HandleDatabaseLevelWithMessage(ctx, err, "TemplateCreate: h.storage.Postgres().TemplateCreate()") {
 		return
 	}
 
-	c.JSON(http.StatusOK, &models.TemplateApiResponse{
-		ErrorCode:    ErrorSuccessCode,
-		ErrorMessage: "",
-		Body:         res,
-	})
+	h.HandleResponse(ctx, nil, http.StatusOK, Success, "", res)
 }
 
 // @Router		/template/{id} [GET]
 // @Summary		Get template by key
 // @Tags        Template
 // @Description	Here template can be got.
+// @Security    BearerAuth
 // @Accept      json
 // @Produce		json
 // @Param       id       path     int true "id"
 // @Success		200 	{object}  models.TemplateApiResponse
-// @Failure     default {object}  models.DefaultResponse
-func (h *handlerV1) TemplateGet(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param("id"))
-	if HandleBadRequestErrWithMessage(c, h.log, err, "TemplateGet: strconv.Atoi()") {
-		return
-	}
-
+// @Failure     default {object}  models.StandardResponse
+func (h *handlerV1) TemplateGet(ctx *gin.Context) {
 	res, err := h.storage.Postgres().TemplateGet(context.Background(), &models.TemplateGetReq{
-		Id: id,
+		Id: ctx.Param("id"),
 	})
-	if HandleDatabaseLevelWithMessage(c, h.log, err, "TemplateGet: h.storage.Postgres().TemplateGet()") {
+	
+	if h.HandleDatabaseLevelWithMessage(ctx, err, "TemplateGet: h.storage.Postgres().TemplateGet()") {
 		return
 	}
 
-	c.JSON(http.StatusOK, models.TemplateApiResponse{
-		ErrorCode:    ErrorSuccessCode,
-		ErrorMessage: "",
-		Body:         res,
-	})
+	h.HandleResponse(ctx, nil, http.StatusOK, Success, "", res)
 }
 
 // @Router		/template/list [GET]
 // @Summary		Get templates list
 // @Tags        Template
 // @Description	Here all templates can be got.
+// @Security    BearerAuth
 // @Accept      json
 // @Produce		json
 // @Param       filters query models.TemplateFindReq true "filters"
 // @Success		200 	{object}  models.TemplateApiFindResponse
-// @Failure     default {object}  models.DefaultResponse
-func (h *handlerV1) TemplateFind(c *gin.Context) {
+// @Failure     default {object}  models.StandardResponse
+func (h *handlerV1) TemplateFind(ctx *gin.Context) {
 	var (
 		dbReq = &models.TemplateFindReq{}
 		err   error
 	)
-	dbReq.Page, err = ParsePageQueryParam(c)
-	if HandleBadRequestErrWithMessage(c, h.log, err, "TemplateFind: helper.ParsePageQueryParam(c)") {
-		return
-	}
-	dbReq.Limit, err = ParseLimitQueryParam(c)
-	if HandleBadRequestErrWithMessage(c, h.log, err, "TemplateFind: helper.ParseLimitQueryParam(c)") {
+
+	dbReq.Page, err = ParsePageQueryParam(ctx)
+	if h.HandleResponse(ctx, err, http.StatusBadRequest, BadRequest, "invalid page param", nil) {
 		return
 	}
 
-	dbReq.Search = c.Query("search")
-	dbReq.OrderByCreatedAt, _ = strconv.ParseUint(c.Query("order_by_created_at"), 10, 8)
+	dbReq.Limit, err = ParseLimitQueryParam(ctx)
+	if h.HandleResponse(ctx, err, http.StatusBadRequest, BadRequest, "invalid limit param", nil) {
+		return
+	}
+
+	dbReq.Search = ctx.Query("search")
+	dbReq.OrderByCreatedAt, _ = strconv.ParseUint(ctx.Query("order_by_created_at"), 10, 8)
 
 	res, err := h.storage.Postgres().TemplateFind(context.Background(), dbReq)
-	if HandleDatabaseLevelWithMessage(c, h.log, err, "TemplateFind: h.storage.Postgres().TemplateFind()") {
+	if h.HandleDatabaseLevelWithMessage(ctx, err, "TemplateFind: h.storage.Postgres().TemplateFind()") {
 		return
 	}
 
-	c.JSON(http.StatusOK, &models.TemplateApiFindResponse{
-		ErrorCode:    ErrorSuccessCode,
-		ErrorMessage: "",
-		Body:         res,
-	})
+	h.HandleResponse(ctx, nil, http.StatusOK, Success, "", res)
 }
 
 // @Router		/template [PUT]
@@ -114,24 +102,20 @@ func (h *handlerV1) TemplateFind(c *gin.Context) {
 // @Produce		json
 // @Param       post   body       models.TemplateUpdateReq true "post info"
 // @Success		200 	{object}  models.TemplateApiResponse
-// @Failure     default {object}  models.DefaultResponse
-func (h *handlerV1) TemplateUpdate(c *gin.Context) {
+// @Failure     default {object}  models.StandardResponse
+func (h *handlerV1) TemplateUpdate(ctx *gin.Context) {
 	body := &models.TemplateUpdateReq{}
-	err := c.ShouldBindJSON(&body)
-	if HandleBadRequestErrWithMessage(c, h.log, err, "TemplateUpdate: c.ShouldBindJSON(&body)") {
+	err := ctx.ShouldBindJSON(&body)
+	if h.HandleResponse(ctx, err, http.StatusBadRequest, BadRequest, "invalid body", nil) {
 		return
 	}
 
 	res, err := h.storage.Postgres().TemplateUpdate(context.Background(), body)
-	if HandleDatabaseLevelWithMessage(c, h.log, err, "TemplateUpdate: h.storage.Postgres().TemplateUpdate()") {
+	if h.HandleDatabaseLevelWithMessage(ctx, err, "TemplateUpdate: h.storage.Postgres().TemplateUpdate()") {
 		return
 	}
 
-	c.JSON(http.StatusOK, &models.TemplateApiResponse{
-		ErrorCode:    ErrorSuccessCode,
-		ErrorMessage: "",
-		Body:         res,
-	})
+	h.HandleResponse(ctx, nil, http.StatusOK, Success, "", res)
 }
 
 // @Router		/template/{id} [DELETE]
@@ -142,21 +126,13 @@ func (h *handlerV1) TemplateUpdate(c *gin.Context) {
 // @Accept      json
 // @Produce		json
 // @Param       id       path     int true "id"
-// @Success		200 	{object}  models.DefaultResponse
-// @Failure     default {object}  models.DefaultResponse
-func (h *handlerV1) TemplateDelete(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param("id"))
-	if HandleBadRequestErrWithMessage(c, h.log, err, "TemplateDelete: strconv.Atoi()") {
+// @Success		200 	{object}  models.StandardResponse
+// @Failure     default {object}  models.StandardResponse
+func (h *handlerV1) TemplateDelete(ctx *gin.Context) {
+	err := h.storage.Postgres().TemplateDelete(context.Background(), &models.TemplateDeleteReq{Id: ctx.Param("id")})
+	if h.HandleDatabaseLevelWithMessage(ctx, err, "TemplateDelete: h.storage.Postgres().TemplateDelete()") {
 		return
 	}
 
-	err = h.storage.Postgres().TemplateDelete(context.Background(), &models.TemplateDeleteReq{Id: id})
-	if HandleDatabaseLevelWithMessage(c, h.log, err, "TemplateDelete: h.storage.Postgres().TemplateDelete()") {
-		return
-	}
-
-	c.JSON(http.StatusOK, models.DefaultResponse{
-		ErrorCode:    ErrorSuccessCode,
-		ErrorMessage: "Successfully deleted",
-	})
+	h.HandleResponse(ctx, nil, http.StatusOK, Success, "Successfully deleted", nil)
 }

@@ -45,7 +45,7 @@
                     "default": {
                         "description": "",
                         "schema": {
-                            "$ref": "#/definitions/models.DefaultResponse"
+                            "$ref": "#/definitions/models.StandardResponse"
                         }
                     }
                 }
@@ -90,7 +90,7 @@
                     "default": {
                         "description": "",
                         "schema": {
-                            "$ref": "#/definitions/models.DefaultResponse"
+                            "$ref": "#/definitions/models.StandardResponse"
                         }
                     }
                 }
@@ -133,7 +133,7 @@
                     "default": {
                         "description": "",
                         "schema": {
-                            "$ref": "#/definitions/models.DefaultResponse"
+                            "$ref": "#/definitions/models.StandardResponse"
                         }
                     }
                 }
@@ -141,6 +141,11 @@
         },
         "/template/list": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Here all templates can be got.",
                 "consumes": [
                     "application/json"
@@ -160,7 +165,17 @@
                     },
                     {
                         "type": "integer",
+                        "name": "order_by_created_at",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
                         "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "search",
                         "in": "query"
                     }
                 ],
@@ -174,7 +189,7 @@
                     "default": {
                         "description": "",
                         "schema": {
-                            "$ref": "#/definitions/models.DefaultResponse"
+                            "$ref": "#/definitions/models.StandardResponse"
                         }
                     }
                 }
@@ -182,6 +197,11 @@
         },
         "/template/{id}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Here template can be got.",
                 "consumes": [
                     "application/json"
@@ -212,7 +232,7 @@
                     "default": {
                         "description": "",
                         "schema": {
-                            "$ref": "#/definitions/models.DefaultResponse"
+                            "$ref": "#/definitions/models.StandardResponse"
                         }
                     }
                 }
@@ -247,13 +267,13 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.DefaultResponse"
+                            "$ref": "#/definitions/models.StandardResponse"
                         }
                     },
                     "default": {
                         "description": "",
                         "schema": {
-                            "$ref": "#/definitions/models.DefaultResponse"
+                            "$ref": "#/definitions/models.StandardResponse"
                         }
                     }
                 }
@@ -298,7 +318,7 @@
                     "default": {
                         "description": "",
                         "schema": {
-                            "$ref": "#/definitions/models.DefaultResponse"
+                            "$ref": "#/definitions/models.StandardResponse"
                         }
                     }
                 }
@@ -336,7 +356,7 @@
                     "default": {
                         "description": "",
                         "schema": {
-                            "$ref": "#/definitions/models.DefaultResponse"
+                            "$ref": "#/definitions/models.StandardResponse"
                         }
                     }
                 }
@@ -362,13 +382,13 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.DefaultResponse"
+                            "$ref": "#/definitions/models.StandardResponse"
                         }
                     },
                     "default": {
                         "description": "",
                         "schema": {
-                            "$ref": "#/definitions/models.DefaultResponse"
+                            "$ref": "#/definitions/models.StandardResponse"
                         }
                     }
                 }
@@ -406,7 +426,7 @@
                     "default": {
                         "description": "",
                         "schema": {
-                            "$ref": "#/definitions/models.DefaultResponse"
+                            "$ref": "#/definitions/models.StandardResponse"
                         }
                     }
                 }
@@ -440,13 +460,13 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.DefaultResponse"
+                            "$ref": "#/definitions/models.StandardResponse"
                         }
                     },
                     "default": {
                         "description": "",
                         "schema": {
-                            "$ref": "#/definitions/models.DefaultResponse"
+                            "$ref": "#/definitions/models.StandardResponse"
                         }
                     }
                 }
@@ -478,13 +498,13 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.DefaultResponse"
+                            "$ref": "#/definitions/models.StandardResponse"
                         }
                     },
                     "default": {
                         "description": "",
                         "schema": {
-                            "$ref": "#/definitions/models.DefaultResponse"
+                            "$ref": "#/definitions/models.StandardResponse"
                         }
                     }
                 }
@@ -524,7 +544,7 @@
                     "default": {
                         "description": "",
                         "schema": {
-                            "$ref": "#/definitions/models.DefaultResponse"
+                            "$ref": "#/definitions/models.StandardResponse"
                         }
                     }
                 }
@@ -569,7 +589,7 @@
                     "default": {
                         "description": "",
                         "schema": {
-                            "$ref": "#/definitions/models.DefaultResponse"
+                            "$ref": "#/definitions/models.StandardResponse"
                         }
                     }
                 }
@@ -603,7 +623,7 @@
                     "default": {
                         "description": "",
                         "schema": {
-                            "$ref": "#/definitions/models.DefaultResponse"
+                            "$ref": "#/definitions/models.StandardResponse"
                         }
                     }
                 }
@@ -611,17 +631,6 @@
         }
     },
     "definitions": {
-        "models.DefaultResponse": {
-            "type": "object",
-            "properties": {
-                "error_code": {
-                    "type": "integer"
-                },
-                "error_message": {
-                    "type": "string"
-                }
-            }
-        },
         "models.MediaResponse": {
             "type": "object",
             "properties": {
@@ -647,6 +656,18 @@
                         }
                     }
                 },
+                "error_code": {
+                    "type": "integer"
+                },
+                "error_message": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.StandardResponse": {
+            "type": "object",
+            "properties": {
+                "data": {},
                 "error_code": {
                     "type": "integer"
                 },

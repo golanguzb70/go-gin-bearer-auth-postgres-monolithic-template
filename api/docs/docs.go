@@ -53,7 +53,7 @@ const docTemplate = `{
                     "default": {
                         "description": "",
                         "schema": {
-                            "$ref": "#/definitions/models.DefaultResponse"
+                            "$ref": "#/definitions/models.StandardResponse"
                         }
                     }
                 }
@@ -98,7 +98,7 @@ const docTemplate = `{
                     "default": {
                         "description": "",
                         "schema": {
-                            "$ref": "#/definitions/models.DefaultResponse"
+                            "$ref": "#/definitions/models.StandardResponse"
                         }
                     }
                 }
@@ -141,7 +141,7 @@ const docTemplate = `{
                     "default": {
                         "description": "",
                         "schema": {
-                            "$ref": "#/definitions/models.DefaultResponse"
+                            "$ref": "#/definitions/models.StandardResponse"
                         }
                     }
                 }
@@ -149,6 +149,11 @@ const docTemplate = `{
         },
         "/template/list": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Here all templates can be got.",
                 "consumes": [
                     "application/json"
@@ -168,7 +173,17 @@ const docTemplate = `{
                     },
                     {
                         "type": "integer",
+                        "name": "order_by_created_at",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
                         "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "search",
                         "in": "query"
                     }
                 ],
@@ -182,7 +197,7 @@ const docTemplate = `{
                     "default": {
                         "description": "",
                         "schema": {
-                            "$ref": "#/definitions/models.DefaultResponse"
+                            "$ref": "#/definitions/models.StandardResponse"
                         }
                     }
                 }
@@ -190,6 +205,11 @@ const docTemplate = `{
         },
         "/template/{id}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Here template can be got.",
                 "consumes": [
                     "application/json"
@@ -220,7 +240,7 @@ const docTemplate = `{
                     "default": {
                         "description": "",
                         "schema": {
-                            "$ref": "#/definitions/models.DefaultResponse"
+                            "$ref": "#/definitions/models.StandardResponse"
                         }
                     }
                 }
@@ -255,13 +275,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.DefaultResponse"
+                            "$ref": "#/definitions/models.StandardResponse"
                         }
                     },
                     "default": {
                         "description": "",
                         "schema": {
-                            "$ref": "#/definitions/models.DefaultResponse"
+                            "$ref": "#/definitions/models.StandardResponse"
                         }
                     }
                 }
@@ -306,7 +326,7 @@ const docTemplate = `{
                     "default": {
                         "description": "",
                         "schema": {
-                            "$ref": "#/definitions/models.DefaultResponse"
+                            "$ref": "#/definitions/models.StandardResponse"
                         }
                     }
                 }
@@ -344,7 +364,7 @@ const docTemplate = `{
                     "default": {
                         "description": "",
                         "schema": {
-                            "$ref": "#/definitions/models.DefaultResponse"
+                            "$ref": "#/definitions/models.StandardResponse"
                         }
                     }
                 }
@@ -370,13 +390,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.DefaultResponse"
+                            "$ref": "#/definitions/models.StandardResponse"
                         }
                     },
                     "default": {
                         "description": "",
                         "schema": {
-                            "$ref": "#/definitions/models.DefaultResponse"
+                            "$ref": "#/definitions/models.StandardResponse"
                         }
                     }
                 }
@@ -414,7 +434,7 @@ const docTemplate = `{
                     "default": {
                         "description": "",
                         "schema": {
-                            "$ref": "#/definitions/models.DefaultResponse"
+                            "$ref": "#/definitions/models.StandardResponse"
                         }
                     }
                 }
@@ -448,13 +468,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.DefaultResponse"
+                            "$ref": "#/definitions/models.StandardResponse"
                         }
                     },
                     "default": {
                         "description": "",
                         "schema": {
-                            "$ref": "#/definitions/models.DefaultResponse"
+                            "$ref": "#/definitions/models.StandardResponse"
                         }
                     }
                 }
@@ -486,13 +506,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.DefaultResponse"
+                            "$ref": "#/definitions/models.StandardResponse"
                         }
                     },
                     "default": {
                         "description": "",
                         "schema": {
-                            "$ref": "#/definitions/models.DefaultResponse"
+                            "$ref": "#/definitions/models.StandardResponse"
                         }
                     }
                 }
@@ -532,7 +552,7 @@ const docTemplate = `{
                     "default": {
                         "description": "",
                         "schema": {
-                            "$ref": "#/definitions/models.DefaultResponse"
+                            "$ref": "#/definitions/models.StandardResponse"
                         }
                     }
                 }
@@ -577,7 +597,7 @@ const docTemplate = `{
                     "default": {
                         "description": "",
                         "schema": {
-                            "$ref": "#/definitions/models.DefaultResponse"
+                            "$ref": "#/definitions/models.StandardResponse"
                         }
                     }
                 }
@@ -611,7 +631,7 @@ const docTemplate = `{
                     "default": {
                         "description": "",
                         "schema": {
-                            "$ref": "#/definitions/models.DefaultResponse"
+                            "$ref": "#/definitions/models.StandardResponse"
                         }
                     }
                 }
@@ -619,17 +639,6 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "models.DefaultResponse": {
-            "type": "object",
-            "properties": {
-                "error_code": {
-                    "type": "integer"
-                },
-                "error_message": {
-                    "type": "string"
-                }
-            }
-        },
         "models.MediaResponse": {
             "type": "object",
             "properties": {
@@ -655,6 +664,18 @@ const docTemplate = `{
                         }
                     }
                 },
+                "error_code": {
+                    "type": "integer"
+                },
+                "error_message": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.StandardResponse": {
+            "type": "object",
+            "properties": {
+                "data": {},
                 "error_code": {
                     "type": "integer"
                 },

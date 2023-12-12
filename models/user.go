@@ -70,18 +70,6 @@ type UserResponse struct {
 	UpdatedAt    string `json:"updated_at"`
 }
 
-type UserApiResponse struct {
-	ErrorCode    int    `json:"error_code"`
-	ErrorMessage string `json:"error_message"`
-	Body         *UserResponse
-}
-
-type UserApiFindResponse struct {
-	ErrorCode    int               `json:"error_code"`
-	ErrorMessage string            `json:"error_message"`
-	Body         *UserFindResponse `json:"body"`
-}
-
 type UserForgotPasswordVerifyReq struct {
 	NewPassword     string `json:"new_password"`
 	Otp             string `json:"otp"`

@@ -24,6 +24,7 @@ func (r *postgresRepo) TemplateCreate(ctx context.Context, req *models.TemplateC
 	if err != nil {
 		return res, HandleDatabaseError(err, r.Log, "TemplateCreate: query.RunWith(r.Db.Db).Scan()")
 	}
+
 	res.CreatedAt = CreatedAt.Format(time.RFC1123)
 	res.UpdatedAt = UpdatedAt.Format(time.RFC1123)
 
@@ -34,11 +35,12 @@ func (r *postgresRepo) TemplateGet(ctx context.Context, req *models.TemplateGetR
 	query := r.Db.Builder.Select("id, template_name, created_at, updated_at").
 		From("templates")
 
-	if req.Id != 0 {
+	if req.Id != "" {
 		query = query.Where(squirrel.Eq{"id": req.Id})
 	} else {
 		return &models.TemplateResponse{}, fmt.Errorf("at least one filter should be exists")
 	}
+
 	res := &models.TemplateResponse{}
 	err := query.RunWith(r.Db.Db).QueryRow().Scan(
 		&res.Id, &res.TemplateName,
@@ -116,6 +118,7 @@ func (r *postgresRepo) TemplateUpdate(ctx context.Context, req *models.TemplateU
 	mp := make(map[string]interface{})
 	mp["template_name"] = req.TemplateName
 	mp["updated_at"] = time.Now()
+	
 	query := r.Db.Builder.Update("templates").SetMap(mp).
 		Where(squirrel.Eq{"id": req.Id}).
 		Suffix("RETURNING id, template_name, created_at, updated_at")
@@ -125,6 +128,7 @@ func (r *postgresRepo) TemplateUpdate(ctx context.Context, req *models.TemplateU
 		&res.Id, &res.TemplateName,
 		&CreatedAt, &UpdatedAt,
 	)
+
 	if err != nil {
 		return res, HandleDatabaseError(err, r.Log, "TemplateUpdate: query.RunWith(r.Db.Db).QueryRow().Scan()")
 	}

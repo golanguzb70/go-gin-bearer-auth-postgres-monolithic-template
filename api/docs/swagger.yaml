@@ -1,12 +1,5 @@
 basePath: /v1
 definitions:
-  models.DefaultResponse:
-    properties:
-      error_code:
-        type: integer
-      error_message:
-        type: string
-    type: object
   models.MediaResponse:
     properties:
       body:
@@ -23,6 +16,14 @@ definitions:
           is_right:
             type: boolean
         type: object
+      error_code:
+        type: integer
+      error_message:
+        type: string
+    type: object
+  models.StandardResponse:
+    properties:
+      data: {}
       error_code:
         type: integer
       error_message:
@@ -172,7 +173,7 @@ paths:
         default:
           description: ""
           schema:
-            $ref: '#/definitions/models.DefaultResponse'
+            $ref: '#/definitions/models.StandardResponse'
       security:
       - BearerAuth: []
       summary: Upload media
@@ -200,7 +201,7 @@ paths:
         default:
           description: ""
           schema:
-            $ref: '#/definitions/models.DefaultResponse'
+            $ref: '#/definitions/models.StandardResponse'
       security:
       - BearerAuth: []
       summary: Create template
@@ -227,7 +228,7 @@ paths:
         default:
           description: ""
           schema:
-            $ref: '#/definitions/models.DefaultResponse'
+            $ref: '#/definitions/models.StandardResponse'
       security:
       - BearerAuth: []
       summary: Update template
@@ -250,11 +251,11 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.DefaultResponse'
+            $ref: '#/definitions/models.StandardResponse'
         default:
           description: ""
           schema:
-            $ref: '#/definitions/models.DefaultResponse'
+            $ref: '#/definitions/models.StandardResponse'
       security:
       - BearerAuth: []
       summary: Delete template
@@ -280,7 +281,9 @@ paths:
         default:
           description: ""
           schema:
-            $ref: '#/definitions/models.DefaultResponse'
+            $ref: '#/definitions/models.StandardResponse'
+      security:
+      - BearerAuth: []
       summary: Get template by key
       tags:
       - Template
@@ -294,8 +297,14 @@ paths:
         name: limit
         type: integer
       - in: query
+        name: order_by_created_at
+        type: integer
+      - in: query
         name: page
         type: integer
+      - in: query
+        name: search
+        type: string
       produces:
       - application/json
       responses:
@@ -306,7 +315,9 @@ paths:
         default:
           description: ""
           schema:
-            $ref: '#/definitions/models.DefaultResponse'
+            $ref: '#/definitions/models.StandardResponse'
+      security:
+      - BearerAuth: []
       summary: Get templates list
       tags:
       - Template
@@ -321,11 +332,11 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.DefaultResponse'
+            $ref: '#/definitions/models.StandardResponse'
         default:
           description: ""
           schema:
-            $ref: '#/definitions/models.DefaultResponse'
+            $ref: '#/definitions/models.StandardResponse'
       security:
       - BearerAuth: []
       summary: Delete user
@@ -352,7 +363,7 @@ paths:
         default:
           description: ""
           schema:
-            $ref: '#/definitions/models.DefaultResponse'
+            $ref: '#/definitions/models.StandardResponse'
       summary: Register user
       tags:
       - User Authorzation
@@ -377,7 +388,7 @@ paths:
         default:
           description: ""
           schema:
-            $ref: '#/definitions/models.DefaultResponse'
+            $ref: '#/definitions/models.StandardResponse'
       security:
       - BearerAuth: []
       summary: Update user
@@ -405,7 +416,7 @@ paths:
         default:
           description: ""
           schema:
-            $ref: '#/definitions/models.DefaultResponse'
+            $ref: '#/definitions/models.StandardResponse'
       summary: Check User status
       tags:
       - User Authorzation
@@ -426,11 +437,11 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.DefaultResponse'
+            $ref: '#/definitions/models.StandardResponse'
         default:
           description: ""
           schema:
-            $ref: '#/definitions/models.DefaultResponse'
+            $ref: '#/definitions/models.StandardResponse'
       summary: User forgot password
       tags:
       - User Authorzation
@@ -452,11 +463,11 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.DefaultResponse'
+            $ref: '#/definitions/models.StandardResponse'
         default:
           description: ""
           schema:
-            $ref: '#/definitions/models.DefaultResponse'
+            $ref: '#/definitions/models.StandardResponse'
       summary: User forgot password
       tags:
       - User Authorzation
@@ -482,7 +493,7 @@ paths:
         default:
           description: ""
           schema:
-            $ref: '#/definitions/models.DefaultResponse'
+            $ref: '#/definitions/models.StandardResponse'
       summary: User Login
       tags:
       - User Authorzation
@@ -512,7 +523,7 @@ paths:
         default:
           description: ""
           schema:
-            $ref: '#/definitions/models.DefaultResponse'
+            $ref: '#/definitions/models.StandardResponse'
       summary: Check Otp
       tags:
       - User Authorzation
@@ -531,7 +542,7 @@ paths:
         default:
           description: ""
           schema:
-            $ref: '#/definitions/models.DefaultResponse'
+            $ref: '#/definitions/models.StandardResponse'
       security:
       - BearerAuth: []
       summary: Get user by key

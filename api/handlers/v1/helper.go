@@ -29,7 +29,7 @@ func StructToStruct(from, to any) error {
 
 func GetClaims(h handlerV1, c *gin.Context) (*t.CustomClaims, error) {
 	var (
-		claims = t.CustomClaims{}
+		claims = &t.CustomClaims{}
 	)
 	strToken := c.GetHeader("Authorization")
 
@@ -41,11 +41,12 @@ func GetClaims(h handlerV1, c *gin.Context) (*t.CustomClaims, error) {
 	}
 	rawClaims := token.Claims.(jwt.MapClaims)
 
-	claims.Sub = rawClaims["sub"].(string)
-	claims.Exp = rawClaims["exp"].(float64)
+	claims.Sub = cast.ToString(rawClaims["sub"])
+	claims.Exp = cast.ToFloat64(rawClaims["exp"])
 	aud := cast.ToStringSlice(rawClaims["aud"])
 	claims.Aud = aud
-	claims.Role = rawClaims["role"].(string)
+	claims.Role = cast.ToString(rawClaims["role"])
 	claims.Token = token
-	return &claims, nil
+
+	return claims, nil
 }

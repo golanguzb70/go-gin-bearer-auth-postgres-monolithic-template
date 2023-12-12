@@ -19,45 +19,35 @@ import (
 // @Produce         json
 // @Param         	file                  formData file true "File"
 // @Success         200					  {object} 	models.MediaResponse
-// @Failure         default               {object}  models.DefaultResponse
+// @Failure         default               {object}  models.StandardResponse
 // @Router          /media/photo [post]
 func (h *handlerV1) UploadMedia(ctx *gin.Context) {
 	file := &models.File{}
 	err := ctx.ShouldBind(&file)
-	if HandleBadRequestErrWithMessage(ctx, h.log, err, "ctx.ShouldBind(&file)") {
+	if h.HandleResponse(ctx, err, http.StatusBadRequest, BadRequest, "invalid body", nil) {
 		return
 	}
 
 	fileSize := file.File.Size
 	if fileSize > (int64(h.cfg.MaxImageSize) << 20) {
-		ctx.JSON(http.StatusBadRequest, models.DefaultResponse{
-			ErrorCode:    ErrorCodeImageSizeExceed,
-			ErrorMessage: fmt.Sprintf("Image size should be less than %d mb", h.cfg.MaxImageSize),
-		})
+		h.HandleResponse(ctx, fmt.Errorf(SizeExceeded), http.StatusRequestEntityTooLarge, SizeExceeded, fmt.Sprintf("Image size should be less than %d mb", h.cfg.MaxImageSize), nil)
 		return
 	}
 
 	ext := filepath.Ext(file.File.Filename)
 	if ext != ".jpg" && ext != ".png" {
-		ctx.JSON(http.StatusBadRequest, models.DefaultResponse{
-			ErrorCode:    ErrorCodeImageExtensionNotAllowed,
-			ErrorMessage: "Only .jpg and .png images are allowed",
-		})
+		h.HandleResponse(ctx, fmt.Errorf(SizeExceeded), http.StatusBadRequest, BadRequest, "Only .jpg and .png images are allowed", nil)
 		return
 	}
 
 	file.File.Filename = uuid.New().String() + filepath.Ext(file.File.Filename)
 
 	err = ctx.SaveUploadedFile(file.File, "./media/"+file.File.Filename)
-	if HandleInternalWithMessage(ctx, h.log, err, "UploadMedia: c.SaveUploadedFile") {
+	if h.HandleResponse(ctx, err, http.StatusInternalServerError, InternalServerError, "UploadMedia:SaveUploadedFile", nil) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, models.MediaResponse{
-		ErrorCode:    ErrorSuccessCode,
-		ErrorMessage: "",
-		Body: models.UploadPhotoRes{
-			URL: h.cfg.BaseUrl + "media/" + file.File.Filename,
-		},
+	h.HandleResponse(ctx, nil, http.StatusOK, Success, "", models.UploadPhotoRes{
+		URL: h.cfg.BaseUrl + "media/" + file.File.Filename,
 	})
 }

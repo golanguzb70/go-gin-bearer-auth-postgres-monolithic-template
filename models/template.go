@@ -5,12 +5,12 @@ type TemplateCreateReq struct {
 }
 
 type TemplateUpdateReq struct {
-	Id           int    `json:"id"`
+	Id           string    `json:"id"`
 	TemplateName string `json:"template_name"`
 }
 
 type TemplateGetReq struct {
-	Id int `json:"id"`
+	Id string `json:"id"`
 }
 
 type TemplateFindReq struct {
@@ -21,7 +21,7 @@ type TemplateFindReq struct {
 }
 
 type TemplateDeleteReq struct {
-	Id int `json:"id"`
+	Id string `json:"id"`
 }
 
 type TemplateFindResponse struct {
@@ -30,20 +30,8 @@ type TemplateFindResponse struct {
 }
 
 type TemplateResponse struct {
-	Id           int    `json:"id"`
+	Id           string    `json:"id"`
 	TemplateName string `json:"template_name"`
 	CreatedAt    string `json:"created_at"`
 	UpdatedAt    string `json:"updated_at"`
-}
-
-type TemplateApiResponse struct {
-	ErrorCode    int    `json:"error_code"`
-	ErrorMessage string `json:"error_message"`
-	Body         *TemplateResponse
-}
-
-type TemplateApiFindResponse struct {
-	ErrorCode    int    `json:"error_code"`
-	ErrorMessage string `json:"error_message"`
-	Body         *TemplateFindResponse
 }
