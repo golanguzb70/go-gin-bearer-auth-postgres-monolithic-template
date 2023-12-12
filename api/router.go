@@ -41,10 +41,12 @@ func New(log *logger.Logger, cfg config.Config, strg storage.StorageI) *gin.Engi
 	casbinEnforcer, err := casbin.NewEnforcer(cfg.AuthConfigPath, cfg.CSVFilePath)
 	if err != nil {
 		log.Error("casbin enforcer error", err)
+		panic(err)
 	}
 	err = casbinEnforcer.LoadPolicy()
 	if err != nil {
 		log.Error("casbin error load policy", err)
+		panic(err)
 	}
 
 	casbinEnforcer.GetRoleManager().(*defaultrolemanager.RoleManager).AddMatchingFunc("keyMatch", util.KeyMatch)
